@@ -1,0 +1,23 @@
+apiVersion: k3d.io/v1alpha3 # this will change in the future as we make everything more stable
+kind: Simple 
+name: otel_test1
+servers: 1
+agents: 2
+volumes: # repeatable flags are represented as YAML lists
+  - volume: /home/luke/dev/k3dcluster/volumes:/var/lib/rancher/k3s/storage
+    nodeFilters:
+      - all
+ports: # same as `--port '80:80@loadbalancer'`
+  - port: 80:80 
+    nodeFilters:
+      - loadbalancer
+registries: # define how registries should be created or used
+  create: # creates a default registry to be used with the cluster; same as `--registry-create registry.localhost`
+    name: registry.localhost
+    host: "0.0.0.0"
+    hostPort: "5000"
+options:
+  k3d: # k3d runtime settings
+    wait: true
+    timeout: 120s
+    
