@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-demo
+spec:
+  selector:
+    matchLabels:
+      app: fastapi-demo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fastapi-demo
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "my-instrumentation"
+    spec:
+      containers:
+      - name: fastapi-demo
+        image: fastpai-admin-demoapp:v0.1
