@@ -1,6 +1,6 @@
 apiVersion: k3d.io/v1alpha3 # this will change in the future as we make everything more stable
 kind: Simple 
-name: otel_test1
+name: otel-test1
 servers: 1
 agents: 2
 volumes: # repeatable flags are represented as YAML lists
