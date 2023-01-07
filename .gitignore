@@ -1,1 +1,4 @@
 charts/**
+helm/cert-manager/ca.crt
+helm/cert-manager/ca.key
+helm/cert-manager/secret-ca.yaml

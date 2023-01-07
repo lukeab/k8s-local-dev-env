@@ -130,7 +130,7 @@ admissionWebhooks:
     enabled: true
     issuerRef: 
       kind: ClusterIssuer
-      name: selfsigned
+      name: ca-local-dev
 
 ## Create the provided Roles and RoleBindings
 ##
