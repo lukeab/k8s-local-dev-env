@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-demo
+spec:
+  selector:
+    matchLabels:
+      app: fastapi-demo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fastapi-demo
+      annotations:
+        instrumentation.opentelemetry.io/inject-python: "my-instrumentation"
+    spec:
+      containers:
+      - name: fastapi-demo
+        image: fastpai-admin-demoapp:v0.1
+---
+# TODO: add service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fastapi-demo
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: fastapidemo.k3d.localtest.me
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fastapi-demo
+            port:
+              number: 80

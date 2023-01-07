@@ -50,7 +50,7 @@ manager:
   ## Adds additional environment variables
   ## e.g ENV_VAR: env_value
   env:
-    ENABLE_WEBHOOKS: "false"
+    ENABLE_WEBHOOKS: "true"
 
   # -- Create the manager ServiceAccount
   serviceAccount:
@@ -112,7 +112,7 @@ kubeRBACProxy:
 ## Admission webhooks make sure only requests with correctly formatted rules will get into the Operator.
 ## They also enable the sidecar injection for OpenTelemetryCollector and Instrumentation CR's
 admissionWebhooks:
-  create: false
+  create: true
   failurePolicy: Fail
   secretName: ""
 
@@ -128,9 +128,9 @@ admissionWebhooks:
   certManager:
     # false means helm will create self-signd cert and secret for you.
     enabled: true
-    issuerRef: {}
-      # kind:
-      # name:
+    issuerRef: 
+      kind: ClusterIssuer
+      name: selfsigned
 
 ## Create the provided Roles and RoleBindings
 ##

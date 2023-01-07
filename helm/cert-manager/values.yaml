@@ -50,7 +50,7 @@ global:
     # renewal of a leadership.
     # retryPeriod: 15s
 
-installCRDs: false
+installCRDs: true
 
 replicaCount: 1
 
@@ -86,7 +86,7 @@ clusterResourceNamespace: ""
 # This namespace allows you to define where the services will be installed into
 # if not set then they will use the namespace of the release
 # This is helpful when installing cert manager as a chart dependency (sub chart)
-namespace: ""
+namespace: "cert-manager"
 
 serviceAccount:
   # Specifies whether a service account should be created
