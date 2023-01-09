@@ -18,7 +18,9 @@ if [ ! -f "${SCRIPT_DIR}/ca.key" ]; then
 fi
 
 if [ ! -f "${SCRIPT_DIR}/ca.crt" ]; then 
-  openssl req -new -x509 -sha256 --config "${SCRIPT_DIR}/config.cnf" -days 10950 -key "${SCRIPT_DIR}/ca.key" -out "${SCRIPT_DIR}/ca.crt"
+  #openssl req -new -x509 -sha256 --config "${SCRIPT_DIR}/config.cnf" -days 10950 -key "${SCRIPT_DIR}/ca.key" -out "${SCRIPT_DIR}/ca.crt"
+  #TODO: Get cnf file working for CA
+  openssl req -new -x509 -sha256 -days 10950 -key "${SCRIPT_DIR}/ca.key" -out "${SCRIPT_DIR}/ca.crt"
 fi
 
 B64_KEY="$(base64 -w 0 "${SCRIPT_DIR}/ca.key")"
@@ -37,6 +39,16 @@ if [ ! -f "${OS_CERT_PATH}" ]; then
 else 
     echo "${OS_CERT_PATH} already setup - skipping cp and update-ca-certificates"
 fi
+
+## Trust cert in chrome/chromium
+# certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n cert-manager-local-dev-ca -i ${OS_CERT_PATH}
+## and remove it
+# certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca
+##list certs
+# certutil -L -d sql:$HOME/.pki/nssdb
+## show details of certs
+# certutil -d sql:$HOME/.pki/nssdb -L -n <certificate nickname>
+
 
 ## steps for removing this cert
 # rm /usr/local/share/ca-certificates/cert-manager-ca-local.crt

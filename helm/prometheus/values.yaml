@@ -8,7 +8,7 @@ nameOverride: ""
 
 ## Override the deployment namespace
 ##
-namespaceOverride: "monitoring"
+namespaceOverride: "prometheus"
 
 ## Provide a k8s version to auto dashboard import script example: kubeTargetVersionOverride: 1.16.6
 ##
@@ -257,7 +257,8 @@ alertmanager:
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
     # ingressClassName: nginx
 
-    annotations: {}
+    annotations: 
+      cert-manager.io/cluster-issuer: ca-local-dev
 
     labels: {}
 
@@ -267,7 +268,7 @@ alertmanager:
     ## Hosts must be provided if Ingress is enabled.
     ##
     hosts: 
-      - alertmanager.k3d.localtest.me
+      - alertmanager.k3d.localhost
       # - alertmanager.domain.com
 
     ## Paths to use for ingress rules - one path should match the alertmanagerSpec.routePrefix
@@ -282,7 +283,10 @@ alertmanager:
     ## TLS configuration for Alertmanager Ingress
     ## Secret must be manually created in the namespace
     ##
-    tls: []
+    tls:
+      - secretName: alertmanager-k3d-localhost-tls
+        hosts:
+          - alertmanager.k3d.localhost
     # - secretName: alertmanager-general-tls
     #   hosts:
     #   - alertmanager.example.com
@@ -754,7 +758,8 @@ grafana:
 
     ## Annotations for Grafana Ingress
     ##
-    annotations: {}
+    annotations:
+      cert-manager.io/cluster-issuer: ca-local-dev
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
 
@@ -768,7 +773,7 @@ grafana:
     # hosts:
     #   - grafana.domain.com
     hosts: 
-      - grafana.k3d.localtest.me
+      - grafana.k3d.localhost
 
     ## Path for grafana ingress
     path: /
@@ -776,7 +781,10 @@ grafana:
     ## TLS configuration for grafana Ingress
     ## Secret must be manually created in the namespace
     ##
-    tls: []
+    tls: 
+      - secretName: grafana-k3d-localhost-tls
+        hosts:
+          - grafana.k3d.localhost
     # - secretName: grafana-general-tls
     #   hosts:
     #   - grafana.example.com
@@ -2217,7 +2225,8 @@ prometheus:
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
     # ingressClassName: nginx
 
-    annotations: {}
+    annotations: 
+      cert-manager.io/cluster-issuer: ca-local-dev
     labels: {}
 
     ## Redirect ingress to an additional defined port on the service
@@ -2229,7 +2238,7 @@ prometheus:
     # hosts:
     #   - prometheus.domain.com
     hosts: 
-      - prometheus.k3d.localtest.me
+      - prometheus.k3d.localhost
 
     ## Paths to use for ingress rules - one path should match the prometheusSpec.routePrefix
     ##
@@ -2243,7 +2252,10 @@ prometheus:
     ## TLS configuration for Prometheus Ingress
     ## Secret must be manually created in the namespace
     ##
-    tls: []
+    tls: 
+      - secretName: prometheus-k3d-localhost-tls
+        hosts:
+          - prometheus.k3d.localhost
       # - secretName: prometheus-general-tls
       #   hosts:
       #     - prometheus.example.com

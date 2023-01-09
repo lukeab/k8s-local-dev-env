@@ -8,7 +8,10 @@ volumes: # repeatable flags are represented as YAML lists
     nodeFilters:
       - all
 ports: # same as `--port '80:80@loadbalancer'`
-  - port: 80:80 
+  - port: 0.0.0.0:80:80 
+    nodeFilters:
+      - loadbalancer
+  - port: 0.0.0.0:443:443
     nodeFilters:
       - loadbalancer
 registries: # define how registries should be created or used
