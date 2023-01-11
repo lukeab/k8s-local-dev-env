@@ -833,9 +833,9 @@ grafana:
 
       ## Field with internal link pointing to existing data source in Grafana.
       ## Can be provisioned via additionalDataSources
-      exemplarTraceIdDestinations: {}
-        # datasourceUid: Jaeger
-        # traceIdLabelName: trace_id
+      exemplarTraceIdDestinations: 
+        datasourceUid: tempo
+        traceIdLabelName: trace_id
 
   extraConfigmapMounts: []
   # - name: certs-configmap
@@ -2397,7 +2397,8 @@ prometheus:
 
     # EnableFeatures API enables access to Prometheus disabled features.
     # ref: https://prometheus.io/docs/prometheus/latest/disabled_features/
-    enableFeatures: []
+    enableFeatures: 
+      - remote-write-receiver
     # - exemplar-storage
 
     ## Image of Prometheus.

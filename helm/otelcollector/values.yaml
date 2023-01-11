@@ -16,7 +16,7 @@ imagePullSecrets: []
 manager:
   image:
     repository: ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-    tag: v0.66.0
+    tag: v0.67.0
   collectorImage:
     repository: otel/opentelemetry-collector-contrib
     tag: 0.67.0
@@ -60,7 +60,7 @@ manager:
 
   ## Enable ServiceMonitor for Prometheus metrics scrape
   serviceMonitor:
-    enabled: false
+    enabled: true
     extraLabels: {}
     metricsEndpoints:
     - port: metrics
