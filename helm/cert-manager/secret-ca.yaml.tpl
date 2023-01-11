@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Secret
 metadata: 
-  name: secret-ca-cert-manager
+  name: ca-local-dev-cert-manager
   namespace: cert-manager
 type: Opaque
 data:
