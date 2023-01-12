@@ -25,7 +25,7 @@ spec:
     exporters:
       logging:
       prometheusremotewrite:
-        endpoint: "https://prom-operator-kube-prometh-prometheus:9090/api/v1/push"
+        endpoint: "http://prom-operator-kube-prometh-prometheus.prometheus.svc.cluster.local:9090/api/v1/write"
         namespace: prometheus
         resource_to_telemetry_conversion:
           enabled: true
