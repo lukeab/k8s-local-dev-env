@@ -1,0 +1,36 @@
+# https://taskfile.dev
+
+version: '3'
+
+includes:
+  depsendencies:
+    taskfile: ./taskfiles/dependencies.yaml
+  baseservices:
+    taskfile: ./taskfiles/baseservices.yaml
+
+tasks:
+  
+  bootstrap:
+    desc: Bootstrap a k3d cluster with default services setup
+    deps: 
+      - task: depsendencies:check_availablecommands_dependencies
+        vars: 
+          COMMAND_DEPENDENCIES: "docker k3d kubectl helm openssl certutil"
+    env:
+      K3D_VOLUMES_OVERRIDE: /tmp/k3dcluster-volumes
+      K3D_CONFIG_FILE: k3d_config.yaml
+    cmds:
+      - export K3D_VOLUMES_OVERRIDE="${K3D_VOLUMES_OVERRIDE}" && k3d cluster create --config "${K3D_CONFIG_FILE}"
+    #silent: true
+  
+  teardown: 
+    desc: Destroy the k3d cluster and cleanup files. 
+    env:
+      OS_CERT_PATH: "/usr/local/share/ca-certificates/cert-manager-localdev-ca.crt"
+    cmds: 
+      - k3d cluster delete local-dev 
+      - sudo rm ${OS_CERT_PATH}
+      - sudo update-ca-certificates -f # -f is fresh switch to remove symlinks
+      - certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca
+      - rm argo-k3d-deployments/secret-ca.yaml
+      - cd data && rm -rf !(.gitignore)

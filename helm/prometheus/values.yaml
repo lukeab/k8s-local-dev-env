@@ -719,7 +719,7 @@ alertmanager:
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 ##
 grafana:
-  enabled: true
+  enabled: false
   namespaceOverride: ""
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
@@ -860,16 +860,26 @@ grafana:
       version: 1
       jsonData:
         httpMethod: GET
-        # tracesToLogs:
-        #   datasourceUid: loki
+        tracesToLogs:
+          datasourceUid: loki
         serviceMap:
           datasourceUid: 'prometheus'
         search:
           hide: false
         nodeGraph:
           enabled: true
-        # lokiSearch:
-        #   datasourceUid: loki
+        lokiSearch:
+          datasourceUid: loki
+    - name: Loki
+      type: loki
+      access: proxy
+      editable: true
+      uid: loki
+      url: http://loki-stack.loki.svc.cluster.local:3100
+      version: 1
+      jsonData:
+        {} 
+
   # - name: prometheus-sample
   #   access: proxy
   #   basicAuth: true
@@ -921,12 +931,12 @@ grafana:
     #   replacement: $1
     #   action: replace
   ## CUSTOM DASHBOARDS SETUP (NOT PART OF DEFAULT HELM VALUES)
-  dashboardProviders:
-    dashboardproviders.yaml: 
-      apiVersion: 1
-      providers:
-      - name: 'default'
-  14584
+  # dashboardProviders:
+  #   dashboardproviders.yaml: 
+  #     apiVersion: 1
+  #     providers:
+  #     - name: 'default'
+  # 14584
 ## Component scraping the kube api server
 ##
 kubeApiServer:

@@ -1,3 +1,6 @@
+#READ: https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#projects
+# and https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/
+
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:

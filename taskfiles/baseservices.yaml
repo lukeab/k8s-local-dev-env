@@ -1,0 +1,55 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  setup_helm_repos:
+    cmds:
+      - helm repo add argo https://argoproj.github.io/argo-helm
+      - helm repo update
+    internal: true
+
+  setup_argocd:
+    deps: [setup_helm_repos]
+    cmds:
+      - helm upgrade -i -n argocd --create-namespace argocd argo/argo-cd -f helm/argocd/values.yaml
+      - echo "Helm setep, login with user admin and password - "
+      - kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 
+  
+  create_CA_cert:
+    env:
+      OS_CERT_PATH: "/usr/local/share/ca-certificates/cert-manager-localdev-ca.crt"
+    cmds:
+      - |
+        echo "##!! Setting up ca certificate for local development and registering it in your current development cluster context"
+        echo 
+        echo "##!! WARNING: This will install a CA certificate in ${OS_CERT_PATH} and update your certificates trust in your operating system and chrome/chromium!"
+        echo 
+        [ ! -f "data/ca.key" ] && openssl genrsa -out "data/ca.key" 4096
+        [ ! -f "data/ca.crt" ] && openssl req -new -x509 -sha256 --config "helm/cert-manager/config.cnf" -days 10950 -key "data/ca.key" -out "data/ca.crt"
+        B64_KEY="$(base64 -w 0 "data/ca.key")"
+        B64_CRT="$(base64 -w 0 "data/ca.crt")"
+        export B64_KEY B64_CRT
+        envsubst < "helm/cert-manager/secret-ca.yaml.tpl" > "data/secret-ca.yaml"
+        ## copy secret to argocd deployments directory
+        cp "data/secret-ca.yaml" argo-k3d-deployments/
+        if [ ! -f "${OS_CERT_PATH}" ]; then
+          sudo cp "data/ca.crt" "${OS_CERT_PATH}"
+          sudo update-ca-certificates -f
+        else
+          echo "${OS_CERT_PATH} already setup - skipping cp and update-ca-certificates"
+        fi
+        certutil -d sql:$HOME/.pki/nssdb -A -t "CT,c,c" -n cert-manager-local-dev-ca -i "$data/ca.crt"
+        certutil -L -d sql:$HOME/.pki/nssdb
+        certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca
+
+  sync_argocd_repo:
+    cmds: 
+      - 
+
+  setup_services:
+    cmds:
+      - task: create_CA_cert
+      - task: setup_argocd
+      - task: sync_argocd_repo
+    

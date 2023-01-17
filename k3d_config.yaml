@@ -1,10 +1,11 @@
-apiVersion: k3d.io/v1alpha3 # this will change in the future as we make everything more stable
+apiVersion: k3d.io/v1alpha4 # this will change in the future as we make everything more stable
 kind: Simple 
-name: otel-test1
+metadata:
+  name: local-dev
 servers: 1
 agents: 2
-volumes: # repeatable flags are represented as YAML lists
-  - volume: /home/luke/dev/k3dcluster/volumes:/var/lib/rancher/k3s/storage
+volumes:
+  - volume: ${K3D_VOLUMES_OVERRIDE}:/var/lib/rancher/k3s/storage
     nodeFilters:
       - all
 ports: # same as `--port '80:80@loadbalancer'`

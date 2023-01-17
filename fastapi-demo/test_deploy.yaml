@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: fastapi-demo
-        image: registry.localhost:5000/fastapi-demo:v0.1
+        image: registry.localhost:5000/fastapidemo:v0.1
 ---
 apiVersion: v1
 kind: Service
