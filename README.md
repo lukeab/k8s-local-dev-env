@@ -54,7 +54,8 @@ $> kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.
 
 ## Setup cert-manager
 
-!! To be deprecated with argocd setup
+**NOTE**
+:exclamation: To be deprecated with argocd setup
 
 ```bash
 $> helm repo add jetstack https://charts.jetstack.io
@@ -64,7 +65,8 @@ $> helm upgrade -i -n cert-manager --create-namespace cert-manager jetstack/cert
 
 ### Install CA Cluster Issuer
 
-!! To be deprecated with argocd setup
+**NOTE**
+:exclamation: To be deprecated with argocd setup
 
 A setup script has been prepared which will generate and trust locally a key and CA certificate.
 
@@ -89,6 +91,9 @@ The `-f` is fresh switch to remove symlinks in case anyting else was done with t
 
 ## Setup prometheus-stack
 
+**NOTE**
+:exclamation: To be deprecated with argocd setup
+
 ```bash
 $> helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 $> helm repo update
@@ -96,6 +101,9 @@ $> helm upgrade -i -n prometheus --create-namespace prom-operator prometheus-com
 ```
 
 ## Setup loki
+
+**NOTE**
+:exclamation: To be deprecated with argocd setup
 
 ```bash
 $> helm repo add grafana https://grafana.github.io/helm-charts
@@ -105,6 +113,9 @@ $> helm upgrade -i -n loki --create-namespace loki-stack grafana/loki-stack -f h
 
 ## Setup Grafana Tempo
 
+**NOTE**
+:exclamation: To be deprecated with argocd setup
+
 ```bash
 $> helm repo add grafana https://grafana.github.io/helm-charts
 $> helm repo update
@@ -113,6 +124,9 @@ $> helm upgrade -i -n tempo --create-namespace tempo grafana/tempo -f helm/tempo
 
 ## Setup OTel operator
 
+**NOTE**
+:exclamation: To be deprecated with argocd setup
+
 ```bash
 $> helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 $> helm repo update
@@ -120,6 +134,9 @@ $> helm upgrade -i -n otel-operator --create-namespace otel-operator open-teleme
 ```
 
 ### Install a OTel Collector service
+
+**NOTE**
+:exclamation: To be deprecated with argocd setup
 
 ```bash
 $> kubectl apply -f helm/otelcollector/collector.yaml
