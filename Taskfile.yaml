@@ -3,8 +3,8 @@
 version: '3'
 
 includes:
-  depsendencies:
-    taskfile: ./taskfiles/dependencies.yaml
+  Util:
+    taskfile: ./taskfiles/Util.yaml
   baseservices:
     taskfile: ./taskfiles/baseservices.yaml
 
@@ -12,25 +12,41 @@ tasks:
   
   bootstrap:
     desc: Bootstrap a k3d cluster with default services setup
-    deps: 
-      - task: depsendencies:check_availablecommands_dependencies
-        vars: 
+    deps:
+      - task: Util:check_availablecommands_dependencies
+        vars:
           COMMAND_DEPENDENCIES: "docker k3d kubectl helm openssl certutil"
     env:
       K3D_VOLUMES_OVERRIDE: /tmp/k3dcluster-volumes
       K3D_CONFIG_FILE: k3d_config.yaml
     cmds:
+      - task: Util:continue
+        vars:
+          MESAGE: "This task will now create a k3d cluster, trusted local CA and base services.\nBe patient, this process can take a while\nContinue?"
       - export K3D_VOLUMES_OVERRIDE="${K3D_VOLUMES_OVERRIDE}" && k3d cluster create --config "${K3D_CONFIG_FILE}"
-    #silent: true
-  
-  teardown: 
-    desc: Destroy the k3d cluster and cleanup files. 
+      - task: Util:wait_for_deployments
+        vars:
+          NAMESPACE: kube-system
+      - task: baseservices:setup_services
+
+  teardown:
+    desc: Destroy the k3d cluster and cleanup files.
     env:
       OS_CERT_PATH: "/usr/local/share/ca-certificates/cert-manager-localdev-ca.crt"
-    cmds: 
-      - k3d cluster delete local-dev 
-      - sudo rm ${OS_CERT_PATH}
-      - sudo update-ca-certificates -f # -f is fresh switch to remove symlinks
-      - certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca
-      - rm argo-k3d-deployments/secret-ca.yaml
-      - cd data && rm -rf !(.gitignore)
+    cmds:
+      - task: Util:continue
+        vars:
+          MESSAGE: "Do you wish to delete the k3d cluster and CA from your system?"
+      - k3d cluster delete local-dev --trace
+      - argocd context local-dev --delete || true
+      # -f is fresh switch to remove symlinks
+      - "[ -f ${OS_CERT_PATH} ] && sudo rm -v ${OS_CERT_PATH} && sudo update-ca-certificates -f || true"
+      # list certs with - certutil -L -d sql:$HOME/.pki/nssdb
+      # get if the cert exists and delete it if it does
+      - certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca || true
+      - "[ -f argo-k3d-deployments/secret-ca.yaml ] && rm -v argo-k3d-deployments/secret-ca.yaml || true"
+      - cd data && GLOBIGNORE=.gitkeep rm -v * || true
+
+  testenv: 
+    cmds:
+      - env

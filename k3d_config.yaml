@@ -3,7 +3,7 @@ kind: Simple
 metadata:
   name: local-dev
 servers: 1
-agents: 2
+agents: 1
 volumes:
   - volume: ${K3D_VOLUMES_OVERRIDE}:/var/lib/rancher/k3s/storage
     nodeFilters:
@@ -23,5 +23,5 @@ registries: # define how registries should be created or used
 options:
   k3d: # k3d runtime settings
     wait: true
-    timeout: 120s
+    timeout: 300s
     

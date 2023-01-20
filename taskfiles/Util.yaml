@@ -1,0 +1,61 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  continue: 
+    vars: 
+      MESSAGE: Do you wish to continue?
+    cmds:
+      - |
+        while true; do
+          read -p "{{.MESSAGE}} [Yy|Nn]" yn
+          case $yn in
+              [Yy]* ) echo "Continuing"; break;;
+              [Nn]* ) echo "Exiting"; exit 1;;
+              * ) echo "Please answer yes or no.";;
+          esac
+        done
+    internal: true
+    silent: true
+
+  wait_for_deployments:
+    vars:
+      NAMESPACE: kube-system
+    cmds:
+      - |
+        #get initial deployments list
+        DEPLOYMENTS_NAMES="$(kubectl -n {{.NAMESPACE}} get deployment -o json|jq -r '.items[].metadata.name')"
+
+        echo "waiting for deployments to finish..."
+
+        kubectl get deploy -n "{{.NAMESPACE}}" --output name 2> /dev/null | xargs -n1 -t \
+          kubectl rollout -n "{{.NAMESPACE}}" status
+        #for dep_name in $DEPLOYMENTS_NAMES; do
+        #  kubectl wait deployment -n kube-system traefik --for condition=Available=True
+    #internal: true
+    #silent: true
+
+  check_availablecommands_dependencies:
+    desc: Test the availability of commands in the environment.
+    vars:
+      COMMAND_DEPENDENCIES: docker k3d kubectl helm openssl certutil envsubst argocd
+    cmds:
+      - |
+        echo "Testing dependencies" 
+        ALL_AVAILABLE="X1"
+        for i in {{.COMMAND_DEPENDENCIES}} ; do command -v $i &> /dev/null || ALL_AVAILABLE="X0"; done
+        if [ "$ALL_AVAILABLE" == "X0" ]; then
+          for i in {{.COMMAND_DEPENDENCIES}} ; do 
+            if command -v $i &> /dev/null; then
+              echo -n -e '\u2705' "${i} "
+            else
+              echo -n -e '\u274c' "${i} "
+            fi
+          done;
+          echo; echo -e "⛔ Dependencies missing, install any missing commands from above before continuing"
+        else
+          echo -e "\u2705 All dependnecies available"
+        fi
+    silent: true
+    internal: true
