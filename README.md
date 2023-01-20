@@ -133,7 +133,11 @@ The `fastpi-demo` folder containers a simple python app to trace and produce met
 Build the container
 
 ```bash
-docker build 
+cd fastapi-demo
+docker build . -t localhost:5000/fastapidemo:v0.1
+docker push localhost:5000/fastapidemo:v0.1
+kubectl apply -f test_deploy.yaml
 ```
+
 
 
