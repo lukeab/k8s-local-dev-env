@@ -41,17 +41,11 @@ TODO: document the environment variable driven configurations available, eg. OS_
 
 ## ArgoCD
 
-ArgoCD is installed by default with bootstrap. This will allow deploying components from a local directory using the `argocd` cli tool. Other cluster base services, Logging, Metrics tracing and ssl components will be deployed through gitops.
+ArgoCD is installed by default with bootstrap. This will allow deploying components from a local directory using the `argocd` cli tool. 
 
+TODO:Other cluster base services, Logging, Metrics tracing and ssl components will be deployed through gitops.
 
-^below deprecated^
-
-```bash
-$> helm repo add argo https://argoproj.github.io/argo-helm
-$> helm repo update
-$> helm upgrade -i -n argocd --create-namespace argocd argo/argo-cd -f helm/argocd/values.yaml
-```
-
+During bootstrap, argocd will automatically login, but for the weui, got to https://argocd.k3d.localhost
 Retreive the password with:
 
 ```bash
@@ -60,6 +54,8 @@ $> kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.
 
 ## Setup cert-manager
 
+!! To be deprecated with argocd setup
+
 ```bash
 $> helm repo add jetstack https://charts.jetstack.io
 $> helm repo update
@@ -67,6 +63,8 @@ $> helm upgrade -i -n cert-manager --create-namespace cert-manager jetstack/cert
 ```
 
 ### Install CA Cluster Issuer
+
+!! To be deprecated with argocd setup
 
 A setup script has been prepared which will generate and trust locally a key and CA certificate.
 
