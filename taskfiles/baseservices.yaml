@@ -26,9 +26,9 @@ tasks:
         echo
         echo "Login at https://argocd.k3d.localhost with user admin and password - "
         echo $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
-      - task: sync_argocd_login
+      - task: argocd_cli_login
   
-  sync_argocd_login:
+  argocd_cli_login:
     cmds: 
       - |
         echo "logging in with user: admin password: {{.ARGO_ADMIN_PASSWORD}}"
@@ -39,6 +39,7 @@ tasks:
 
   sync_argocd_repo:
     cmds: 
+      # TODO add test to verify login endpoint is ready, or timeout retry to makesure login works
       - argocd sync --local --folder
   
   create_CA_cert:

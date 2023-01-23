@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: testapp
+  name: testapp
+  namespace: testapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: testapp
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: testapp
+    spec:
+      containers:
+      - image: nginx:latest
+        name: testapp
+        resources: {}

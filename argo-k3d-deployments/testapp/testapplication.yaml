@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: testapp
+  namespace: testapp
+spec:
+  destination:
+    namespace: testap
+    server: https://kubernetes.default.svc 
+  project: default 
+  source: 
+    path: testapp/
+  syncPolicy: 
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+    - CreateNamespace=true
