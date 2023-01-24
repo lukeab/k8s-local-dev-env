@@ -45,7 +45,7 @@ ArgoCD is installed by default with bootstrap. This will allow deploying compone
 
 TODO:Other cluster base services, Logging, Metrics tracing and ssl components will be deployed through gitops.
 
-During bootstrap, argocd will automatically login, but for the weui, got to https://argocd.k3d.localhost
+During bootstrap, argocd will automatically login, but to see the ui, got to https://argocd-k3d.localhost
 Retreive the password with:
 
 ```bash

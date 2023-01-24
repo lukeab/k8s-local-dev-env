@@ -68,7 +68,7 @@ certificate:
     name: ca-local-dev
   # the hostname / subject alternative names for the certificate
   dnsNames:
-    - podinfo.k3d.localhost
+    - podinfo-k3d.localhost
 
 # metrics-server add-on required
 hpa:
@@ -109,14 +109,14 @@ ingress:
     # kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: ca-local-dev
   hosts:
-    - host: podinfo.k3d.localhost
+    - host: podinfo-k3d.localhost
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls:
     - secretName: podinfo-k3d-localhost-tls
       hosts:
-        - podinfo.k3d.localhost
+        - podinfo-k3d.localhost
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local

@@ -5,9 +5,9 @@ metadata:
   namespace: testapp
 spec:
   destination:
-    namespace: testap
-    server: https://kubernetes.default.svc 
-  project: default 
+    namespace: testapp
+    server: https://kubernetes.default.svc
+  #project: default 
   source: 
     path: testapp/
   syncPolicy: 

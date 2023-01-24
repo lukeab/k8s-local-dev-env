@@ -18,21 +18,26 @@ tasks:
       ## this looks like it can fail as the secret isn't created yet - might need to visit login page for secret to be created
       - |
         #request argocd page to see if this prompts creating the initial admin password secret
-        #curl -o /dev/null https://argocd.k3d.localhost
         echo "Waiting for argocd initial password to be created"
         sleep 5
         kubectl get secret -n argocd argocd-initial-admin-secret || true
         while ! kubectl get secret -n argocd argocd-initial-admin-secret >/dev/null 2>&1; do (echo -n "." ; sleep 1); done
         echo
-        echo "Login at https://argocd.k3d.localhost with user admin and password - "
+        echo "Login at https://argocd-k3d.localhost with user admin and password - "
         echo $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
       - task: argocd_cli_login
   
   argocd_cli_login:
     cmds: 
       - |
-        echo "logging in with user: admin password: {{.ARGO_ADMIN_PASSWORD}}"
-        argocd login argocd.k3d.localhost --insecure --grpc-web --name local-dev --username admin --password "{{.ARGO_ADMIN_PASSWORD}}"
+        set -x
+        ARGOCD_SERVER="$(kubectl get ingress argocd-server -n argocd --output=jsonpath='{.spec.rules[0].host}')"
+        echo "Waiting for ${ARGOCD_SERVER} endpoint..."
+        until curl -kI "https://${ARGOCD_SERVER}" &> /dev/null ; do (echo -n "." ; sleep 1) ; done
+        echo
+        echo "logging in to ${ARGOCD_SERVER} with user: admin password: {{.ARGO_ADMIN_PASSWORD}}"
+        until argocd login "${ARGOCD_SERVER}" --insecure --grpc-web --name local-dev --username admin --password "{{.ARGO_ADMIN_PASSWORD}}" &> /dev/null ; do  (echo -n "." ; sleep 1); done
+        echo
     vars:
       ARGO_ADMIN_PASSWORD:
         sh: echo $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
