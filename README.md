@@ -10,11 +10,11 @@ Right now it's only tested on linux (ubuntu 22.04) but hopefully will work on mo
 
 ## Dependencies
 
-The project is setup using the `Taskfile.yaml` in the root of the project, this uses the [go-task tool](https://taskfile.dev/). 
+The project is setup using the `Taskfile.yaml` in the root of the project, this uses the [go-task tool](https://taskfile.dev/).
 
 Using the [asdf-vm runtime version manager](https://asdf-vm.com/) to install `go-task` and for `k3d`, `kubectl` and `helm`, and many other cases, is highly recommended. (Or brew on mac if preferred)
 
-Install the dependencies in your OS before beginning, `docker` `openssl` `libnss3-tools` `k3d` `kubectl` `helm`.
+Install the dependencies in your OS before beginning, `docker` `openssl` `libnss3-tools` `k3d` `kubectl` `helm`, `jq`.
 
 In Linux, the `libnss3-tools` package delivers the `certutil` allowing you to register certificates for trust by the Chrome browser. (Firefox: unknown, Mac: should be possible, Windows..emm.) Otherwise the cert can be manually added ot your browser trust through the browser security preferences.
 
@@ -22,22 +22,29 @@ TODO: add description on how to reach the ca file to load manually into browsers
 
 ### Recommendations
 
-By installing the `libnss-myhostname` package, you can use *.localhost domains, on linux(`Ubuntu`).  This will resolve any depth of subdomains prefixed in front of `.localhost` to `127.0.0.1` so you can reference services by hostnames in your local dev environment.
+By installing the `libnss-myhostname` package, you can use *.localhost domains, on linux(`Ubuntu`), however golang tools like `argocd` do not default to the libc DNS resolution, so reliability of this is up for testing. This can be used to resolve any depth of subdomains prefixed in front of `.localhost` to `127.0.0.1` so you can reference services by hostnames in your local dev environment.
 
 Another useful tool is the [k8slens.dev](https://k8slens.dev/) app which can be used to easily view your local dev environment kubernetes cluster and any other configured kubernetes clusters you may want to visually inspect or operate.
 
 ## Bootstrap the cluster
 
+To startup the cluster, customize the .env file, or in your shell, for example optionally export new values for the `LOCAL_DEV_DNS_SUFFIX` or `CLUSTER_NAME` environment variable in your shell, then run the bootstrap task:
+
 ```bash
+export LOCAL_DEV_DNS_SUFFIX=127.0.0.1.nip.io # optional
 task bootstrap
 ```
 
-This creates a light weight (k3s based) kubernetes cluster in docker containers, including by default the traefik proxy as a load balancer and a docker registry which can be accessed at `registry.localhost:5000` from within the cluster and additionaly both urls adding `localhost:5000` as another available address.
+This will create a light weight (k3s based) kubernetes cluster in docker containers, including by default the traefik proxy as a load balancer and a docker registry which can be accessed at `registry.<CLUSTER_NAME>.<LOCAL_DEV_DNS_SUFFIX>:5000` from within the cluster and from your workspace as `localhost:5000`, as well as the dns address as within your cluster.
+
+```bash
+docker build ./fastapidemo/ -f ./fastapidemo/Dockerfile -t localhost:5000/fastapidemo:v0.1
+docker push localhost:5000/fastapidemo:v0.1
+```
 
 The `k3d_config.yaml` file shows the cluster configuration specifics.
 
 TODO: document the environment variable driven configurations available, eg. OS_CERT_PATH, K3D_VOLUMES_OVERRIDE, K3D_CONFIG_FILE
-
 
 ## ArgoCD
 
@@ -45,7 +52,8 @@ ArgoCD is installed by default with bootstrap. This will allow deploying compone
 
 TODO:Other cluster base services, Logging, Metrics tracing and ssl components will be deployed through gitops.
 
-During bootstrap, argocd will automatically login, but to see the ui, got to https://argocd-k3d.localhost
+During bootstrap, argocd will automatically login, but to see the ui, got to `https://argocd.<CLUSTER_NAME>.<LOCAL_DEV_DNS_SUFFIX>`
+
 Retreive the password with:
 
 ```bash
@@ -74,9 +82,10 @@ A setup script has been prepared which will generate and trust locally a key and
 $> ./helm/cert-manager/setup_local_dev_ca.sh
 ```
 
-This will be loaded into the k3d cluster as the keys to a self signed CA Cluster Issuer `ca-local-dev`. The cert will also be added to your linux system trust `/usr/local/share/ca-certificates/cert-manager-ca-local.crt`.
+This will be loaded into the k3d cluster as the keys to a self signed CA Cluster Issuer `ca-local-dev`. The cert, by default, will also be added to your linux system trust `/usr/local/share/ca-certificates/cert-manager-ca-local.crt`.
 
-In future, for windows of Mac platforms this could be made cross platform.
+**NOTE**
+:exclamation: In future, for windows of Mac platforms this could be made cross platform.
 
 ### Removing this cert
 
@@ -155,6 +164,3 @@ docker build . -t localhost:5000/fastapidemo:v0.1
 docker push localhost:5000/fastapidemo:v0.1
 kubectl apply -f test_deploy.yaml
 ```
-
-
-

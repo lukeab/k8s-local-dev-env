@@ -1,9 +1,7 @@
 # https://taskfile.dev
 
 version: '3'
-
 tasks:
-
   setup_helm_repos:
     cmds:
       - helm repo add argo https://argoproj.github.io/argo-helm
@@ -13,7 +11,7 @@ tasks:
   setup_argocd:
     deps: [setup_helm_repos]
     cmds:
-      - helm upgrade -i -n argocd --create-namespace argocd argo/argo-cd -f helm/argocd/values.yaml
+      - helm upgrade -i -n argocd --create-namespace argocd argo/argo-cd -f helm/argocd/values.yaml --set server.ingress.hosts[0]="argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}",server.ingess.tls[0].hosts[0]="argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}"
       - echo "Helm setep complete"
       ## this looks like it can fail as the secret isn't created yet - might need to visit login page for secret to be created
       - |
@@ -23,24 +21,26 @@ tasks:
         kubectl get secret -n argocd argocd-initial-admin-secret || true
         while ! kubectl get secret -n argocd argocd-initial-admin-secret >/dev/null 2>&1; do (echo -n "." ; sleep 1); done
         echo
-        echo "Login at https://argocd-k3d.localhost with user admin and password - "
+        echo "Login at https://argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} with user admin and password - "
         echo $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
       - task: argocd_cli_login
   
   argocd_cli_login:
-    cmds: 
-      - |
-        set -x
-        ARGOCD_SERVER="$(kubectl get ingress argocd-server -n argocd --output=jsonpath='{.spec.rules[0].host}')"
-        echo "Waiting for ${ARGOCD_SERVER} endpoint..."
-        until curl -kI "https://${ARGOCD_SERVER}" &> /dev/null ; do (echo -n "." ; sleep 1) ; done
-        echo
-        echo "logging in to ${ARGOCD_SERVER} with user: admin password: {{.ARGO_ADMIN_PASSWORD}}"
-        until argocd login "${ARGOCD_SERVER}" --insecure --grpc-web --name local-dev --username admin --password "{{.ARGO_ADMIN_PASSWORD}}" &> /dev/null ; do  (echo -n "." ; sleep 1); done
-        echo
     vars:
       ARGO_ADMIN_PASSWORD:
         sh: echo $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+      ARGOCD_SERVER_URL:
+        sh: echo "$(kubectl get ingress argocd-server -n argocd --output=jsonpath='{.spec.rules[0].host}')"
+    cmds: 
+      - |
+        echo "Waiting for {{.ARGOCD_SERVER_URL}} endpoint..."
+        until curl -kI "https://{{.ARGOCD_SERVER_URL}}" &> /dev/null ; do (echo -n "." ; sleep 1) ; done
+        echo
+        echo "logging in to {{.ARGOCD_SERVER_URL}} with user: admin password: {{.ARGO_ADMIN_PASSWORD}}"
+        until argocd login "{{.ARGOCD_SERVER_URL}}" --insecure --grpc-web --name local-dev --username admin --password "{{.ARGO_ADMIN_PASSWORD}}" &> /dev/null ; do  (echo -n "." ; sleep 1); done
+        echo
+        echo "argocd cli logged in to {{.ARGOCD_SERVER_URL}} as admin successfully"
+
 
   sync_argocd_repo:
     cmds: 
@@ -48,8 +48,6 @@ tasks:
       - argocd sync --local --folder
   
   create_CA_cert:
-    env:
-      OS_CERT_PATH: "/usr/local/share/ca-certificates/cert-manager-localdev-ca.crt"
     cmds:
       - |
         echo "##!! Setting up ca certificate for local development and registering it in your current development cluster context"
@@ -76,6 +74,5 @@ tasks:
   
   setup_services:
     cmds:
-      - task: create_CA_cert #do this first to prepare the CA and redner the asset for argo to use
       - task: setup_argocd
       #- task: sync_argocd_repo

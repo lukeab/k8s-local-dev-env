@@ -44,10 +44,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - fastapidemo-k3d.localhost
-      secretName: fastapidemo-k3d-localhost-tls
+        - fastapidemo.${CLUSTER_NAME}.${LOCAL_DEV_DNS_SUFFIX}
+      secretName: fastapidemo-tls
   rules:
-  - host: fastapidemo-k3d.localhost
+  - host: fastapidemo.${CLUSTER_NAME}.${LOCAL_DEV_DNS_SUFFIX}
     http:
       paths:
       - path: /

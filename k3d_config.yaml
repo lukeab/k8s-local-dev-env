@@ -1,7 +1,7 @@
 apiVersion: k3d.io/v1alpha4 # this will change in the future as we make everything more stable
 kind: Simple 
 metadata:
-  name: local-dev
+  name: ${CLUSTER_NAME}
 servers: 1
 agents: 1
 volumes:
@@ -16,8 +16,8 @@ ports: # same as `--port '80:80@loadbalancer'`
     nodeFilters:
       - loadbalancer
 registries: # define how registries should be created or used
-  create: # creates a default registry to be used with the cluster; same as `--registry-create registry.localhost`
-    name: registry.localhost
+  create: # creates a default registry to be used with the cluster; same as `--registry-create registry.<CLUSTER_NAME>.<LOCAL_DEV_DNS_SUFFIX>`
+    name: registry.${CLUSTER_NAME}.${LOCAL_DEV_DNS_SUFFIX}
     host: "0.0.0.0"
     hostPort: "5000"
 options:

@@ -1632,7 +1632,7 @@ server:
     ## Hostnames must be provided if Ingress is enabled.
     ## Secrets must be manually created in the namespace
     hosts: 
-      - argocd-k3d.localhost
+      - argocd.local-dev.local.gd
       # - argocd.example.com
 
     # -- List of ingress paths
@@ -1652,9 +1652,9 @@ server:
 
     # -- Ingress TLS configuration
     tls: 
-      - secretName: argocd-k3d-localhost-tls
+      - secretName: argocd-tls
         hosts:
-          - argocd-k3d.localhost
+          - argocd.local-dev.local.gd
       # - secretName: your-certificate-name
       #   hosts:
       #     - argocd.example.com

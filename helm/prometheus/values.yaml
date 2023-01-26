@@ -268,7 +268,7 @@ alertmanager:
     ## Hosts must be provided if Ingress is enabled.
     ##
     hosts: 
-      - alertmanager.k3d.localhost
+      - alertmanager-k3d.localhost
       # - alertmanager.domain.com
 
     ## Paths to use for ingress rules - one path should match the alertmanagerSpec.routePrefix
@@ -286,7 +286,7 @@ alertmanager:
     tls:
       - secretName: alertmanager-k3d-localhost-tls
         hosts:
-          - alertmanager.k3d.localhost
+          - alertmanager-k3d.localhost
     # - secretName: alertmanager-general-tls
     #   hosts:
     #   - alertmanager.example.com
@@ -773,7 +773,7 @@ grafana:
     # hosts:
     #   - grafana.domain.com
     hosts: 
-      - grafana.k3d.localhost
+      - grafana-k3d.localhost
 
     ## Path for grafana ingress
     path: /
@@ -784,7 +784,7 @@ grafana:
     tls: 
       - secretName: grafana-k3d-localhost-tls
         hosts:
-          - grafana.k3d.localhost
+          - grafana-k3d.localhost
     # - secretName: grafana-general-tls
     #   hosts:
     #   - grafana.example.com
@@ -2274,7 +2274,7 @@ prometheus:
     # hosts:
     #   - prometheus.domain.com
     hosts: 
-      - prometheus.k3d.localhost
+      - prometheus-k3d.localhost
 
     ## Paths to use for ingress rules - one path should match the prometheusSpec.routePrefix
     ##
@@ -2291,7 +2291,7 @@ prometheus:
     tls: 
       - secretName: prometheus-k3d-localhost-tls
         hosts:
-          - prometheus.k3d.localhost
+          - prometheus-k3d.localhost
       # - secretName: prometheus-general-tls
       #   hosts:
       #     - prometheus.example.com

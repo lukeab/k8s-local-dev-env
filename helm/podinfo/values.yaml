@@ -68,7 +68,7 @@ certificate:
     name: ca-local-dev
   # the hostname / subject alternative names for the certificate
   dnsNames:
-    - podinfo-k3d.localhost
+    - podinfo.k3d.local.gd
 
 # metrics-server add-on required
 hpa:

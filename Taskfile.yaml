@@ -2,28 +2,36 @@
 
 version: '3'
 
+dotenv: ['.env']
+
 includes:
   Util:
     taskfile: ./taskfiles/Util.yaml
   baseservices:
     taskfile: ./taskfiles/baseservices.yaml
 
+# env:
+#   K3D_VOLUMES_OVERRIDE: /tmp/k3dcluster-volumes
+#   K3D_CONFIG_FILE: k3d_config.yaml
+#   # with nss-myhostname can use .k3d.localhost  default to: k3d.local.gd so all platforms should work
+#   CLUSTER_NAME: localdev
+#   LOCAL_DEV_DNS_SUFFIX: "local.gd"
+#   OS_CERT_PATH: "/usr/local/share/ca-certificates/cert-manager-localdev-ca.crt"
 tasks:
   
   bootstrap:
     desc: Bootstrap a k3d cluster with default services setup
+
     deps:
       - task: Util:check_availablecommands_dependencies
         vars:
           COMMAND_DEPENDENCIES: "docker k3d kubectl helm openssl certutil"
-    env:
-      K3D_VOLUMES_OVERRIDE: /tmp/k3dcluster-volumes
-      K3D_CONFIG_FILE: k3d_config.yaml
     cmds:
       - task: Util:continue
         vars:
           MESAGE: "This task will now create a k3d cluster, trusted local CA and base services.\nBe patient, this process can take a while\nContinue?"
-      - export K3D_VOLUMES_OVERRIDE="${K3D_VOLUMES_OVERRIDE}" && k3d cluster create --config "${K3D_CONFIG_FILE}"
+      - task: baseservices:create_CA_cert #do this first to prepare the CA and redner the asset for argo to use
+      - k3d cluster create --config "${K3D_CONFIG_FILE}"
       - task: Util:wait_for_deployments
         vars:
           NAMESPACE: kube-system
@@ -31,8 +39,7 @@ tasks:
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
-    env:
-      OS_CERT_PATH: "/usr/local/share/ca-certificates/cert-manager-localdev-ca.crt"
+
     cmds:
       - task: Util:continue
         vars:
