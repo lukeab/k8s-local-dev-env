@@ -82,7 +82,7 @@ A setup script has been prepared which will generate and trust locally a key and
 $> ./helm/cert-manager/setup_local_dev_ca.sh
 ```
 
-This will be loaded into the k3d cluster as the keys to a self signed CA Cluster Issuer `ca-local-dev`. The cert, by default, will also be added to your linux system trust `/usr/local/share/ca-certificates/cert-manager-ca-local.crt`.
+This will be loaded into the k3d cluster as the keys to a self signed CA Cluster Issuer `ca-<CLUSTE_NAME>`. The cert, by default, will also be added to your linux system trust `/usr/local/share/ca-certificates/cert-manager-ca-<CLUSTER_NAME>.crt`.
 
 **NOTE**
 :exclamation: In future, for windows of Mac platforms this could be made cross platform.

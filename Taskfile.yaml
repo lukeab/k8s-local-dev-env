@@ -9,6 +9,8 @@ includes:
     taskfile: ./taskfiles/Util.yaml
   baseservices:
     taskfile: ./taskfiles/baseservices.yaml
+  argocd: 
+    taskfile: ./taskfiles/argocd.yaml
 
 # env:
 #   K3D_VOLUMES_OVERRIDE: /tmp/k3dcluster-volumes
@@ -30,12 +32,13 @@ tasks:
       - task: Util:continue
         vars:
           MESAGE: "This task will now create a k3d cluster, trusted local CA and base services.\nBe patient, this process can take a while\nContinue?"
+      - command -v figlet &>/dev/null && figlet "Starting Local Dev Environment"
       - task: baseservices:create_CA_cert #do this first to prepare the CA and redner the asset for argo to use
       - k3d cluster create --config "${K3D_CONFIG_FILE}"
       - task: Util:wait_for_deployments
         vars:
           NAMESPACE: kube-system
-      - task: baseservices:setup_services
+      - task: argocd:setup_argocd
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
@@ -44,8 +47,8 @@ tasks:
       - task: Util:continue
         vars:
           MESSAGE: "Do you wish to delete the k3d cluster and CA from your system?"
-      - k3d cluster delete local-dev --trace
-      - argocd context local-dev --delete || true
+      - k3d cluster delete {{.CLUSTER_NAME}} --trace
+      - argocd context {{.CLUSTER_NAME}} --delete || true
       # -f is fresh switch to remove symlinks
       - "[ -f ${OS_CERT_PATH} ] && sudo rm -v ${OS_CERT_PATH} && sudo update-ca-certificates -f || true"
       # list certs with - certutil -L -d sql:$HOME/.pki/nssdb

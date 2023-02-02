@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  name: base-services-appofapps
+  namespace: argocd
+spec:
+  destination:
+    namespace: base-services
+    server: https://kubernetes.default.svc
+  project: base-services
+  source:
+    path: base-services
+    repoURL: https://github.com/lukeab/fakerepo.git
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true

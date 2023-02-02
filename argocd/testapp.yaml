@@ -7,12 +7,11 @@ spec:
   destination:
     namespace: testapp
     server: https://kubernetes.default.svc
-  #project: default 
-  source: 
-    path: testapp/
-  syncPolicy: 
-    automated:
-      prune: true
-      selfHeal: false
+  project: default
+  source:
+    path: testapp
+    repoURL: https://github.com/lukeab/k8s-local-dev-env-argocd.git
+  syncPolicy:
     syncOptions:
-    - CreateNamespace=true
+      - CreateNamespace=true
+  
