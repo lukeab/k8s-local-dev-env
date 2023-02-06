@@ -94,6 +94,8 @@ Since you don't want CA's sticking around your computer's trust store, delete it
 ```bash
 $> rm /usr/local/share/ca-certificates/cert-manager-ca-local.crt
 $> sudo update-ca-certificates -f 
+## or if on arch or fedora
+$> sudo update-ca-trust
 ```
 
 The `-f` is fresh switch to remove symlinks in case anyting else was done with the cert file.

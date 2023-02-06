@@ -4,6 +4,11 @@ metadata:
   name: ${CLUSTER_NAME}
 servers: 1
 agents: 1
+kubeAPI: # same as `--api-port myhost.my.domain:6445` (where the name would resolve to 127.0.0.1)
+  host: ${CLUSTER_NAME}.${LOCAL_DEV_DNS_SUFFIX} # important for the `server` setting in the kubeconfig
+  hostIP: "127.0.0.1" # where the Kubernetes API will be listening on
+  hostPort: "6445" # where the Kubernetes API listening port will be mapped to on your host system
+
 volumes:
   - volume: ${K3D_VOLUMES_OVERRIDE}:/var/lib/rancher/k3s/storage
     nodeFilters:

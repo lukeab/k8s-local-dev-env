@@ -8,10 +8,9 @@ tasks:
       - |
         if ! helm repo list |grep -q argoproj.github.io/argo-helm ]; then
           helm repo add argo https://argoproj.github.io/argo-helm
-          
         fi
         #TODO: only do repo update if current copy of repo packages is too old
-        helm repo update argo #+ jetstack,prometheus-community, grafana,...
+        helm repo update argo # add a few more, eg. jetstack,prometheus-community, grafana,...
     internal: true
 
   setup_argocd:
@@ -46,7 +45,7 @@ tasks:
         until argocd login "{{.ARGOCD_SERVER_URL}}" --insecure --grpc-web --name {{.CLUSTER_NAME}} --username admin --password "{{.ARGO_ADMIN_PASSWORD}}" &> /dev/null ; do  (echo -n "." ; sleep 1); done
         echo
         echo "argocd cli logged in to {{.ARGOCD_SERVER_URL}} as admin successfully"
-
+      - task: create_projects
   sync_argocd_app:
     cmds: 
       # TODO add test to verify login endpoint is ready, or timeout retry to makesure login works
@@ -54,6 +53,6 @@ tasks:
 
   create_projects: 
     cmds: 
-      - argocd proj create -f argocd/system-services-project.yaml
-      - argocd app create -f argocd/serviceapps.yaml --validate false
+      - argocd proj create --upsert -f argocd/base-services-project.yaml
+      #- argocd app create -f argocd/serviceapps.yaml --validate false
       #- argocd app create testapp2 --repo https://github.com/lukeab/unvalidated.git --path testapp2 --dest-server https://kubernetes.default.svc --dest-namespace testapp2 --validate=false --sync-policy none --set-finalizer --sync-option CreateNamespace=true

@@ -1,0 +1,25 @@
+# This manifest written by Jolene Engo <dev.toaster@gmail.com>
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+spec:
+  destination:
+    namespace: cert-manager
+    server: https://kubernetes.default.svc
+  project: base-services
+  source:
+    chart: cert-manager
+    helm:
+      version: v3
+      values: |
+        installCRDs: true
+        namespace: "cert-manager"
+    repoURL: https://charts.jetstack.io
+    targetRevision: v1.11.0
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - Validate=false
+      - CreateNamespace=true

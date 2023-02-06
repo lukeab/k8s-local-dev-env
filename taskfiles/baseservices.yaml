@@ -2,7 +2,9 @@
 
 version: '3'
 tasks:
-
+  create_app_cert_manager: 
+    cmds: 
+      - argocd app create cert-manager -f argocd/base-services/cert-manager/cert-manager.yaml --validate false
   create_CA_cert:
     cmds:
       - |
@@ -20,10 +22,11 @@ tasks:
         cp "data/secret-ca.yaml" argo-k3d-deployments/
         if [ ! -f "${OS_CERT_PATH}" ]; then
           sudo cp "data/ca.crt" "${OS_CERT_PATH}"
-          sudo update-ca-certificates -f
+          sudo {{.UPDATE_CA_TRUST_CMD}}
         else
-          echo "${OS_CERT_PATH} already setup - skipping cp and update-ca-certificates"
+          echo "${OS_CERT_PATH} already setup - skipping cp and {{.UPDATE_CA_TRUST_CMD}}"
         fi
         certutil -d sql:$HOME/.pki/nssdb -A -t "CT,c,c" -n cert-manager-local-dev-ca -i "data/ca.crt"
         certutil -L -d sql:$HOME/.pki/nssdb
         certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca
+      

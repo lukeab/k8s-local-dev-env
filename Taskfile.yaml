@@ -11,6 +11,17 @@ includes:
     taskfile: ./taskfiles/baseservices.yaml
   argocd: 
     taskfile: ./taskfiles/argocd.yaml
+vars: 
+  ## TODO : use this vars as a way to error on dependency not found issue
+  UPDATE_CA_TRUST_CMD: 
+    sh: |
+      if command -v update-ca-trust &>/dev/null; then
+        echo -n "$(command -v update-ca-trust)"
+      elif command -v update-ca-certificates &> /dev/null; then
+        echo -n "(command -v update-ca-certificates) -f"
+      else
+      echo "exit;"
+      fi
 
 # env:
 #   K3D_VOLUMES_OVERRIDE: /tmp/k3dcluster-volumes
@@ -39,6 +50,7 @@ tasks:
         vars:
           NAMESPACE: kube-system
       - task: argocd:setup_argocd
+      - task: baseservices:create_app_cert_manager
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
@@ -50,11 +62,11 @@ tasks:
       - k3d cluster delete {{.CLUSTER_NAME}} --trace
       - argocd context {{.CLUSTER_NAME}} --delete || true
       # -f is fresh switch to remove symlinks
-      - "[ -f ${OS_CERT_PATH} ] && sudo rm -v ${OS_CERT_PATH} && sudo update-ca-certificates -f || true"
+      - "[ -f ${OS_CERT_PATH} ] && sudo rm -v ${OS_CERT_PATH} && sudo {{.UPDATE_CA_TRUST_CMD}} || true"
       # list certs with - certutil -L -d sql:$HOME/.pki/nssdb
       # get if the cert exists and delete it if it does
       - certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca || true
-      - "[ -f argo-k3d-deployments/secret-ca.yaml ] && rm -v argo-k3d-deployments/secret-ca.yaml || true"
+      - "[ -f argo-k3d-deployments/secret-c\a.yaml ] && rm -v argo-k3d-deployments/secret-ca.yaml || true"
       - cd data && GLOBIGNORE=.gitkeep rm -v * || true
 
   testenv: 
