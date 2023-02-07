@@ -37,7 +37,7 @@ tasks:
   check_availablecommands_dependencies:
     desc: Test the availability of commands in the environment.
     vars:
-      COMMAND_DEPENDENCIES: docker k3d kubectl helm openssl certutil envsubst argocd figlet
+      COMMAND_DEPENDENCIES: docker k3d kubectl helm openssl certutil envsubst argocd
     cmds:
       - |
         echo "Testing dependencies" 

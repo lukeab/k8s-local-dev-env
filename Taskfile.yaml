@@ -23,13 +23,6 @@ vars:
       echo "exit;"
       fi
 
-# env:
-#   K3D_VOLUMES_OVERRIDE: /tmp/k3dcluster-volumes
-#   K3D_CONFIG_FILE: k3d_config.yaml
-#   # with nss-myhostname can use .k3d.localhost  default to: k3d.local.gd so all platforms should work
-#   CLUSTER_NAME: localdev
-#   LOCAL_DEV_DNS_SUFFIX: "local.gd"
-#   OS_CERT_PATH: "/usr/local/share/ca-certificates/cert-manager-localdev-ca.crt"
 tasks:
   
   bootstrap:
@@ -43,7 +36,7 @@ tasks:
       - task: Util:continue
         vars:
           MESAGE: "This task will now create a k3d cluster, trusted local CA and base services.\nBe patient, this process can take a while\nContinue?"
-      - command -v figlet &>/dev/null && figlet "Starting Local Dev Environment"
+      - MSG="Starting Local Dev Environment"; command -v figlet &>/dev/null && figlet "$MSG" || echo "****\n$MSG\n****\n"
       - task: baseservices:create_CA_cert #do this first to prepare the CA and redner the asset for argo to use
       - k3d cluster create --config "${K3D_CONFIG_FILE}"
       - task: Util:wait_for_deployments
@@ -52,6 +45,9 @@ tasks:
       - task: argocd:setup_argocd
       - task: baseservices:create_app_cert_manager
       - task: baseservices:create_app_prometheus_stack
+      - task: baseservices:create_app_loki_stack
+      - task: baseservices:create_app_tempo
+      - task: baseservices:create_app_opentelemetry_operator
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
@@ -73,3 +69,14 @@ tasks:
   testenv: 
     cmds:
       - env
+  
+  environment_urls:
+    cmds:
+      - |
+        figlet Logins:
+        echo -n "Argocd:\t $(kubectl get ingress argocd-server -n argocd --output=jsonpath='{.spec.rules[0].host}')\tuser: admin\tpassword: "
+        echo "$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
+        echo "Prometheus:\t $(kubectl get ingress prometheus -n prometheus --output=jsonpath='{.spec.rules[0].host}')"
+        echo "Alertmanager:\t $(kubectl get ingress alertmanager -n prometheus --output=jsonpath='{.spec.rules[0].host}')"
+        echo "Grafana:\t $(kubectl get ingress grafana -n prometheus --output=jsonpath='{.spec.rules[0].host}')"
+        echo ""

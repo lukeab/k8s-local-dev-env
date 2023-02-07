@@ -20,6 +20,31 @@ tasks:
         vars:
           NAMESPACE: prometheus
 
+  create_app_loki_stack:
+    cmds:
+      - argocd app create --upsert loki-stack -f argocd/base-services/loki-stack/loki-stack.yaml
+      - argocd app wait loki-stack --sync
+      - task: :Util:wait_for_deployments
+        vars:
+          NAMESPACE: loki
+  
+  create_app_tempo:
+    cmds:
+      - argocd app create --upsert tempo -f argocd/base-services/tempo/tempo.yaml
+      - argocd app wait tempo --sync
+      - task: :Util:wait_for_deployments
+        vars:
+          NAMESPACE: tempo
+
+  create_app_opentelemetry_operator:
+    cmds:
+      - argocd app create --upsert opentelemetry-operator -f argocd/base-services/opentelemetry-operator/opentelemetry-operator.yaml
+      - argocd app wait opentelemetry-operator --sync
+      - task: :Util:wait_for_deployments
+        vars:
+          NAMESPACE: opentelemetry
+      - argocd app create --upsert opentelemetry-collector-instrumentation -f argocd/base-services/opentelemetry-operator/opentelemetry-collector-instrumentation.yaml
+
   create_CA_cert:
     cmds:
       - |

@@ -100,39 +100,6 @@ $> sudo update-ca-trust
 
 The `-f` is fresh switch to remove symlinks in case anyting else was done with the cert file.
 
-## Setup prometheus-stack
-
-**NOTE**
-:exclamation: To be deprecated with argocd setup
-
-```bash
-$> helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-$> helm repo update
-$> helm upgrade -i -n prometheus --create-namespace prom-operator prometheus-community/kube-prometheus-stack -f helm/prometheus/values.yaml
-```
-
-## Setup loki
-
-**NOTE**
-:exclamation: To be deprecated with argocd setup
-
-```bash
-$> helm repo add grafana https://grafana.github.io/helm-charts
-$> helm repo update
-$> helm upgrade -i -n loki --create-namespace loki-stack grafana/loki-stack -f helm/loki-stack/values.yaml
-```
-
-## Setup Grafana Tempo
-
-**NOTE**
-:exclamation: To be deprecated with argocd setup
-
-```bash
-$> helm repo add grafana https://grafana.github.io/helm-charts
-$> helm repo update
-$> helm upgrade -i -n tempo --create-namespace tempo grafana/tempo -f helm/tempo/values.yaml
-```
-
 ## Setup OTel operator
 
 **NOTE**

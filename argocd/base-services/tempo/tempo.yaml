@@ -1,0 +1,33 @@
+# This manifest written by Jolene Engo <dev.toaster@gmail.com>
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tempo
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: tempo
+    server: https://kubernetes.default.svc
+  project: base-services
+  source:
+    chart: tempo
+    helm:
+      version: v3
+      values: |
+        tempo:
+          reportingEnabled: false
+          metricsGenerator:
+            enabled: true
+            remoteWriteUrl: "http://https://prom-operator-kube-prometh-prometheus:9090/api/v1/write"
+        persistence:
+          enabled: true
+          storageClassName: local-path
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 1.0.0
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

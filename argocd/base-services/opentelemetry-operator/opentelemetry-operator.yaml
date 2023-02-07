@@ -1,0 +1,33 @@
+# This manifest written by Jolene Engo <dev.toaster@gmail.com>
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: opentelemetry-operator
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: opentelemetry
+    server: https://kubernetes.default.svc
+  project: base-services
+  source:
+    chart: opentelemetry-operator
+    helm:
+      version: v3
+      values: |
+        manager:
+          serviceMonitor:
+            enabled: true
+        admissionWebhooks:
+          certManager:
+            issuerRef:
+              kind: ClusterIssuer
+              name: ca-local-dev
+    repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+    targetRevision: 0.21.5
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
