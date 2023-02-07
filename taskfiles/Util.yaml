@@ -20,14 +20,12 @@ tasks:
     silent: true
 
   wait_for_deployments:
-    vars:
-      NAMESPACE: kube-system
     cmds:
       - |
         #get initial deployments list
         DEPLOYMENTS_NAMES="$(kubectl -n {{.NAMESPACE}} get deployment -o json|jq -r '.items[].metadata.name')"
 
-        echo "waiting for deployments to finish..."
+        echo "Waiting for deployments in namespace: {{.NAMESPACE}} to finish..."
 
         kubectl get deploy -n "{{.NAMESPACE}}" --output name 2> /dev/null | xargs -n1 -t \
           kubectl rollout -n "{{.NAMESPACE}}" status

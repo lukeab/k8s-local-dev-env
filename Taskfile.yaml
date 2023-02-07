@@ -18,7 +18,7 @@ vars:
       if command -v update-ca-trust &>/dev/null; then
         echo -n "$(command -v update-ca-trust)"
       elif command -v update-ca-certificates &> /dev/null; then
-        echo -n "(command -v update-ca-certificates) -f"
+        echo -n "$(command -v update-ca-certificates) -f"
       else
       echo "exit;"
       fi
@@ -51,6 +51,7 @@ tasks:
           NAMESPACE: kube-system
       - task: argocd:setup_argocd
       - task: baseservices:create_app_cert_manager
+      - task: baseservices:create_app_prometheus_stack
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
@@ -66,7 +67,7 @@ tasks:
       # list certs with - certutil -L -d sql:$HOME/.pki/nssdb
       # get if the cert exists and delete it if it does
       - certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca || true
-      - "[ -f argo-k3d-deployments/secret-c\a.yaml ] && rm -v argo-k3d-deployments/secret-ca.yaml || true"
+      - "[ -f argo-k3d-deployments/cert-manager-default-clusterissuer/secret-ca.yaml ] && rm -v argo-k3d-deployments/cert-manager-default-clusterissuer/secret-ca.yaml || true"
       - cd data && GLOBIGNORE=.gitkeep rm -v * || true
 
   testenv: 

@@ -1,0 +1,104 @@
+# This manifest written by Jolene Engo <dev.toaster@gmail.com>
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: prometheus
+    server: https://kubernetes.default.svc
+  project: base-services
+  source:
+    chart: kube-prometheus-stack
+    helm:
+      version: v3
+      values: |
+        namespaceOverride: prometheus
+        alertmanager:
+          ingress:
+            enabled: true
+            annotations:
+              kubernetes.io/ingress.class: traefik
+              ingress.kubernetes.io/ssl-redirect: "true"
+              cert-manager.io/cluster-issuer: ca-local-dev
+            hosts: 
+              - alertmanager.local-dev.local.gd
+            tls:
+              - secretName: alertmanager-tls
+                hosts:
+                  - alertmanager.local-dev.local.gd
+        grafana:
+          ingress:
+            enabled: true
+            annotations:
+              kubernetes.io/ingress.class: traefik
+              ingress.kubernetes.io/ssl-redirect: "true"
+              cert-manager.io/cluster-issuer: ca-local-dev
+            hosts: 
+              - grafana.local-dev.local.gd
+            tls:
+              - secretName: grafana-tls
+                hosts:
+                  - grafana.local-dev.local.gd
+          sidecar:
+            datasources:
+              exemplarTraceIdDestinations: 
+                datasourceUid: tempo
+                traceIdLabelName: trace_id
+          additionalDataSources:
+            - name: Tempo
+              type: tempo
+              editable: true
+              isDefault: false
+              access: proxy
+              url: http://tempo.tempo.svc.cluster.local:3100
+              uid: tempo
+              version: 1
+              jsonData:
+                httpMethod: GET
+                tracesToLogs:
+                  datasourceUid: loki
+                serviceMap:
+                  datasourceUid: 'prometheus'
+                search:
+                  hide: false
+                nodeGraph:
+                  enabled: true
+                lokiSearch:
+                  datasourceUid: loki
+            - name: Loki
+              type: loki
+              access: proxy
+              editable: true
+              uid: loki
+              url: http://loki-stack.loki.svc.cluster.local:3100
+              version: 1
+              jsonData:
+                {}
+        prometheus:
+          ingress:
+            enabled: true
+            annotations:
+              kubernetes.io/ingress.class: traefik
+              ingress.kubernetes.io/ssl-redirect: "true"
+              cert-manager.io/cluster-issuer: ca-local-dev
+            hosts:
+              - prometheus.local-dev.local.gd
+            tls:
+              - secretName: prometheus.local-dev.local.gd
+                hosts:
+                  - prometheus.local-dev.local.gd
+          prometheusSpec:
+            enableFeatures:
+              - remote-write-receiver
+              - exemplar-storage
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 44.3.1
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

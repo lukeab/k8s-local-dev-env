@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  name: cert-manager-default-clusterissuer
+  namespace: argocd
+spec:
+  destination:
+    namespace: cert-manager
+    server: https://kubernetes.default.svc
+  project: base-services
+  source:
+    path: cert-manager
+    repoURL: https://github.com/lukeab/fakerepo.git
+  syncPolicy:
+    syncOptions:
+      - Validate=false
+      - CreateNamespace=true

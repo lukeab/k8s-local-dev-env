@@ -4,6 +4,8 @@ kind: Application
 metadata:
   name: cert-manager
   namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
     namespace: cert-manager
@@ -21,5 +23,4 @@ spec:
   syncPolicy:
     automated: {}
     syncOptions:
-      - Validate=false
       - CreateNamespace=true

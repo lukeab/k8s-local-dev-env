@@ -4,7 +4,22 @@ version: '3'
 tasks:
   create_app_cert_manager: 
     cmds: 
-      - argocd app create cert-manager -f argocd/base-services/cert-manager/cert-manager.yaml --validate false
+      - argocd app create --upsert cert-manager -f argocd/base-services/cert-manager/cert-manager-app.yaml
+      - argocd app wait cert-manager --sync
+      - task: :Util:wait_for_deployments
+        vars:
+          NAMESPACE: cert-manager
+      - argocd app create --upsert cert-manager-default-clusterissuer -f argocd/base-services/cert-manager/default-clusterissuer-app.yaml --validate=false --sync-policy none 
+      - argocd app sync cert-manager-default-clusterissuer --local argo-k3d-deployments/cert-manager-default-clusterissuer --local-repo-root argo-k3d-deployments
+
+  create_app_prometheus_stack:
+    cmds:
+      - argocd app create --upsert kube-prometheus-stack -f argocd/base-services/prometheus-stack/prometheus-stack.yaml
+      - argocd app wait kube-prometheus-stack --sync
+      - task: :Util:wait_for_deployments
+        vars:
+          NAMESPACE: prometheus
+
   create_CA_cert:
     cmds:
       - |
@@ -19,7 +34,7 @@ tasks:
         export B64_KEY B64_CRT
         envsubst < "helm/cert-manager/secret-ca.yaml.tpl" > "data/secret-ca.yaml"
         ## copy secret to argocd deployments directory
-        cp "data/secret-ca.yaml" argo-k3d-deployments/
+        cp "data/secret-ca.yaml" argo-k3d-deployments/cert-manager-default-clusterissuer/
         if [ ! -f "${OS_CERT_PATH}" ]; then
           sudo cp "data/ca.crt" "${OS_CERT_PATH}"
           sudo {{.UPDATE_CA_TRUST_CMD}}

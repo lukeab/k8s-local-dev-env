@@ -1620,6 +1620,7 @@ server:
     enabled: true
     # -- Additional ingress annotations
     annotations:
+      kubernetes.io/ingress.class: traefik
       ingress.kubernetes.io/ssl-redirect: "true"
       cert-manager.io/cluster-issuer: "ca-local-dev"
     # -- Additional ingress labels
