@@ -45,12 +45,8 @@ tasks:
       - task: Util:wait_for_deployments
         vars:
           NAMESPACE: kube-system
-      - task: argocd:setup_argocd
-      - task: baseservices:create_app_cert_manager
-      - task: baseservices:create_app_prometheus_stack
-      - task: baseservices:create_app_loki_stack
-      - task: baseservices:create_app_tempo
-      - task: baseservices:create_app_opentelemetry_operator
+      - task: baseservices:create_all
+      - task: environment_urls
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
@@ -73,12 +69,17 @@ tasks:
       - env
   
   environment_urls:
+    desc: Show all urls and appropriate logins required for the local dev environment
     cmds:
       - |
-        MSG="Dev Env Links"; command -v figlet &>/dev/null && figlet "$MSG" || echo "****\n$MSG\n****\n"
-        echo -n "Argocd:\t $(kubectl get ingress argocd-server -n argocd --output=jsonpath='{.spec.rules[0].host}')\tuser: admin\tpassword: "
-        echo "$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
-        echo "Prometheus:\t $(kubectl get ingress prometheus -n prometheus --output=jsonpath='{.spec.rules[0].host}')"
-        echo "Alertmanager:\t $(kubectl get ingress alertmanager -n prometheus --output=jsonpath='{.spec.rules[0].host}')"
-        echo "Grafana:\t $(kubectl get ingress grafana -n prometheus --output=jsonpath='{.spec.rules[0].host}')"
+        MSG="Dev Env Links"; command -v figlet &>/dev/null && figlet "$MSG" || echo -e "****\n$MSG\n****\n"
+
+        echo -e "Argocd:\t https://$(kubectl get ingress argocd-server -n argocd --output=jsonpath='{.spec.rules[0].host}')\tuser: admin\tpassword: $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)\n"
+
+        echo -e "Prometheus:\t https://$(kubectl get ingress kube-prometheus-stack-prometheus -n prometheus --output=jsonpath='{.spec.rules[0].host}')\n"
+
+        echo -e "Alertmanager:\t https://$(kubectl get ingress kube-prometheus-stack-alertmanager -n prometheus --output=jsonpath='{.spec.rules[0].host}')\n"
+
+        echo -e "Grafana:\t https://$(kubectl get ingress kube-prometheus-stack-grafana -n prometheus --output=jsonpath='{.spec.rules[0].host}')"
         echo ""
+    silent: true

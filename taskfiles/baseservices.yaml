@@ -1,7 +1,17 @@
 # https://taskfile.dev
 
 version: '3'
+
 tasks:
+  create_all:
+    cmds:
+      - task: create_app_cert_manager
+      - task: create_app_prometheus_stack
+      - task: create_app_loki_stack
+      - task: create_app_tempo
+      - task: create_app_opentelemetry_operator
+    silent: true
+
   create_app_cert_manager: 
     cmds: 
       - argocd app create --upsert cert-manager -f argocd/base-services/cert-manager/cert-manager-app.yaml
