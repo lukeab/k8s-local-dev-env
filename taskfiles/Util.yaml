@@ -27,7 +27,7 @@ tasks:
 
         echo "Waiting for deployments in namespace: {{.NAMESPACE}} to finish..."
 
-        kubectl get deploy -n "{{.NAMESPACE}}" --output name 2> /dev/null | xargs -n1 -t \
+        kubectl get deploy,statefulsets.apps,daemonsets.apps -n "{{.NAMESPACE}}" --output name 2> /dev/null | xargs -n1 -t \
           kubectl rollout -n "{{.NAMESPACE}}" status
         #for dep_name in $DEPLOYMENTS_NAMES; do
         #  kubectl wait deployment -n kube-system traefik --for condition=Available=True

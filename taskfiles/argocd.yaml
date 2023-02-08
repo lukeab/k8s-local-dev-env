@@ -17,7 +17,10 @@ tasks:
     deps: [setup_argo_helm_repo]
     cmds:
       - |
-        helm upgrade -i -n argocd --create-namespace argocd argo/argo-cd --version 3.35.4 -f helm/argocd/values.yaml --set "server.ingress.hosts[0]=argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}","server.ingress.tls[0].hosts[0]=argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}"
+        helm upgrade -i -n argocd --create-namespace argocd argo/argo-cd --version 5.20.1 -f helm/argocd/values.yaml \
+          --set "server.ingress.hosts[0]=argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}"\
+          --set "server.ingress.tls[0].hosts[0]=argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}"\
+          --set "configs.cm.url=argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}"
       - echo "Helm setep complete"
       ## this looks like it can fail as the secret isn't created yet - might need to visit login page for secret to be created
       - |
