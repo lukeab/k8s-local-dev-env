@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: base-services
   source:
-    path: base-services/cert-manager
+    path: /cert-manager-default-clusterissuer
     repoURL: https://github.com/lukeab/fakerepo.git
   syncPolicy:
     syncOptions:

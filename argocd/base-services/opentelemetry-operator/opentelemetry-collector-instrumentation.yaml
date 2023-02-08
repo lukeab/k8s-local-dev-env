@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   project: base-services
   source:
-    path: base-services/opentelemetry-operator/collector-instrumentation
+    path: /collector-instrumentation
     repoURL: https://github.com/lukeab/fakerepo.git
   syncPolicy:
     syncOptions:

@@ -12,6 +12,10 @@ includes:
   argocd: 
     taskfile: ./taskfiles/argocd.yaml
 vars: 
+  # based on https://manuals.gfi.com/en/kerio/connect/content/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html
+  OS_CERT_PATH:
+    sh: "taskfiles/scripts/find-ca-trust-dir.sh"
+
   ## TODO : use this vars as a way to error on dependency not found issue
   UPDATE_CA_TRUST_CMD: 
     sh: |
@@ -27,7 +31,6 @@ tasks:
   
   bootstrap:
     desc: Bootstrap a k3d cluster with default services setup
-
     deps:
       - task: Util:check_availablecommands_dependencies
         vars:
@@ -35,7 +38,7 @@ tasks:
     cmds:
       - task: Util:continue
         vars:
-          MESAGE: "This task will now create a k3d cluster, trusted local CA and base services.\nBe patient, this process can take a while\nContinue?"
+          MESSAGE: "This task will now create a k3d cluster, trusted local CA and base services.\nBe patient, this process can take a while\nContinue?"
       - MSG="Starting Local Dev Environment"; command -v figlet &>/dev/null && figlet "$MSG" || echo "****\n$MSG\n****\n"
       - task: baseservices:create_CA_cert #do this first to prepare the CA and redner the asset for argo to use
       - k3d cluster create --config "${K3D_CONFIG_FILE}"
@@ -51,7 +54,6 @@ tasks:
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
-
     cmds:
       - task: Util:continue
         vars:
@@ -59,7 +61,7 @@ tasks:
       - k3d cluster delete {{.CLUSTER_NAME}} --trace
       - argocd context {{.CLUSTER_NAME}} --delete || true
       # -f is fresh switch to remove symlinks
-      - "[ -f ${OS_CERT_PATH} ] && sudo rm -v ${OS_CERT_PATH} && sudo {{.UPDATE_CA_TRUST_CMD}} || true"
+      - "[ -f {{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt ] && sudo rm -v {{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt && sudo {{.UPDATE_CA_TRUST_CMD}} || true"
       # list certs with - certutil -L -d sql:$HOME/.pki/nssdb
       # get if the cert exists and delete it if it does
       - certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca || true

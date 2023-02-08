@@ -6,12 +6,13 @@ tasks:
   setup_argo_helm_repo:
     cmds:
       - |
-        if ! helm repo list |grep -q argoproj.github.io/argo-helm ]; then
+        if ! [ helm repo list |grep -q argoproj.github.io/argo-helm ]; then
           helm repo add argo https://argoproj.github.io/argo-helm
         fi
         #TODO: only do repo update if current copy of repo packages is too old
         helm repo update argo # add a few more, eg. jetstack,prometheus-community, grafana,...
     internal: true
+    silent: true
 
   setup_argocd:
     deps: [setup_argo_helm_repo]
@@ -27,13 +28,13 @@ tasks:
         #request argocd page to see if this prompts creating the initial admin password secret
         echo "Waiting for argocd initial password to be created"
         sleep 5
-        kubectl get secret -n argocd argocd-initial-admin-secret || true
         while ! kubectl get secret -n argocd argocd-initial-admin-secret >/dev/null 2>&1; do (echo -n "." ; sleep 1); done
         echo
         echo "Login at https://argocd.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} with user admin and password - "
         echo $(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
       - task: argocd_cli_login
-  
+    silent: true
+
   argocd_cli_login:
     vars:
       ARGO_ADMIN_PASSWORD:
@@ -50,10 +51,7 @@ tasks:
         echo
         echo "argocd cli logged in to {{.ARGOCD_SERVER_URL}} as admin successfully"
       - task: create_projects
-  sync_argocd_app:
-    cmds: 
-      # TODO add test to verify login endpoint is ready, or timeout retry to makesure login works
-      - argocd sync --local --folder
+    silent: true 
 
   create_projects: 
     cmds: 

@@ -4,8 +4,6 @@ version: '3'
 
 tasks:
   continue: 
-    vars: 
-      MESSAGE: Do you wish to continue?
     cmds:
       - |
         while true; do
@@ -19,25 +17,27 @@ tasks:
     internal: true
     silent: true
 
+  sync_argocd_app:
+    cmds: 
+      # TODO add test to verify login endpoint is ready, or timeout retry to makesure login works
+      - argocd sync --local --folder
+
   wait_for_deployments:
     cmds:
       - |
-        #get initial deployments list
         DEPLOYMENTS_NAMES="$(kubectl -n {{.NAMESPACE}} get deployment -o json|jq -r '.items[].metadata.name')"
 
         echo "Waiting for deployments in namespace: {{.NAMESPACE}} to finish..."
 
         kubectl get deploy,statefulsets.apps,daemonsets.apps -n "{{.NAMESPACE}}" --output name 2> /dev/null | xargs -n1 -t \
           kubectl rollout -n "{{.NAMESPACE}}" status
-        #for dep_name in $DEPLOYMENTS_NAMES; do
-        #  kubectl wait deployment -n kube-system traefik --for condition=Available=True
-    #internal: true
-    #silent: true
+    internal: true
+    silent: true
 
   check_availablecommands_dependencies:
     desc: Test the availability of commands in the environment.
     vars:
-      COMMAND_DEPENDENCIES: docker k3d kubectl helm openssl certutil envsubst argocd
+      COMMAND_DEPENDENCIES: docker k3d kubectl helm openssl certutil envsubst argocd jq
     cmds:
       - |
         echo "Testing dependencies" 

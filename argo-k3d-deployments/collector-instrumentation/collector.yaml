@@ -2,7 +2,7 @@ apiVersion: opentelemetry.io/v1alpha1
 kind: OpenTelemetryCollector
 metadata:
   name: my-collector
-  namespace: opentelemetry-operator
+  namespace: opentelemetry
 spec:
   mode: deployment # This configuration is omittable.
   config: |

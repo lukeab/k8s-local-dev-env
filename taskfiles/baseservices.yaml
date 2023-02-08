@@ -11,6 +11,7 @@ tasks:
           NAMESPACE: cert-manager
       - argocd app create --upsert cert-manager-default-clusterissuer -f argocd/base-services/cert-manager/default-clusterissuer-app.yaml --validate=false --sync-policy none 
       - argocd app sync cert-manager-default-clusterissuer --local argo-k3d-deployments/cert-manager-default-clusterissuer --local-repo-root argo-k3d-deployments
+    
 
   create_app_prometheus_stack:
     cmds:
@@ -42,15 +43,16 @@ tasks:
       - argocd app wait opentelemetry-operator --sync
       - task: :Util:wait_for_deployments
         vars:
-          NAMESPACE: opentelemetry
-      - argocd app create --upsert opentelemetry-collector-instrumentation -f argocd/base-services/opentelemetry-operator/opentelemetry-collector-instrumentation.yaml
+          NAMESPACE: opentelemetry 
+      - argocd app create --upsert opentelemetry-collector-instrumentation -f argocd/base-services/opentelemetry-operator/opentelemetry-collector-instrumentation.yaml --validate=false --sync-policy none
+      - argocd app sync opentelemetry-collector-instrumentation --local argo-k3d-deployments/collector-instrumentation --local-repo-root argo-k3d-deployments
 
   create_CA_cert:
     cmds:
       - |
         echo "##!! Setting up ca certificate for local development and registering it in your current development cluster context"
         echo 
-        echo "##!! WARNING: This will install a CA certificate in ${OS_CERT_PATH} and update your certificates trust in your operating system and chrome/chromium!"
+        echo "##!! WARNING: This will install a CA certificate in {{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt and update your certificates trust in your operating system and chrome/chromium!"
         echo 
         [ ! -f "data/ca.key" ] && openssl genrsa -out "data/ca.key" 4096
         [ ! -f "data/ca.crt" ] && openssl req -new -x509 -sha256 --config "helm/cert-manager/config.cnf" -days 10950 -key "data/ca.key" -out "data/ca.crt"
@@ -58,13 +60,13 @@ tasks:
         B64_CRT="$(base64 -w 0 "data/ca.crt")"
         export B64_KEY B64_CRT
         envsubst < "helm/cert-manager/secret-ca.yaml.tpl" > "argo-k3d-deployments/cert-manager-default-clusterissuer/secret-ca.yaml"
-        if [ ! -f "${OS_CERT_PATH}" ]; then
-          sudo cp "data/ca.crt" "${OS_CERT_PATH}"
+        if [ ! -f "{{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt" ]; then
+          sudo cp "data/ca.crt" "{{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt"
           sudo {{.UPDATE_CA_TRUST_CMD}}
         else
-          echo "${OS_CERT_PATH} already setup - skipping cp and {{.UPDATE_CA_TRUST_CMD}}"
+          echo "{{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt already setup - skipping cp and {{.UPDATE_CA_TRUST_CMD}}"
         fi
-        certutil -d sql:$HOME/.pki/nssdb -A -t "CT,c,c" -n cert-manager-local-dev-ca -i "data/ca.crt"
+        certutil -d sql:$HOME/.pki/nssdb -A -t "CT,c,c" -n k8s-{{.CLUSTER_NAME}}-cert-manager-ca -i "data/ca.crt"
         certutil -L -d sql:$HOME/.pki/nssdb
-        certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca
-      
+        certutil -d sql:$HOME/.pki/nssdb -L -n k8s-{{.CLUSTER_NAME}}-cert-manager-ca
+    silent: true
