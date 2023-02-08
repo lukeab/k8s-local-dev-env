@@ -48,7 +48,7 @@ TODO: document the environment variable driven configurations available, eg. OS_
 
 ## ArgoCD
 
-ArgoCD is installed by default with bootstrap. This will allow deploying components from a local directory using the `argocd` cli tool. 
+ArgoCD is installed by default with bootstrap. This will allow deploying components from a local directory using the `argocd` cli tool.
 
 TODO:Other cluster base services, Logging, Metrics tracing and ssl components will be deployed through gitops.
 
@@ -60,36 +60,9 @@ Retreive the password with:
 $> kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 ```
 
-## Setup cert-manager
+### Removing the CA cert trust
 
-**NOTE**
-:exclamation: To be deprecated with argocd setup
-
-```bash
-$> helm repo add jetstack https://charts.jetstack.io
-$> helm repo update
-$> helm upgrade -i -n cert-manager --create-namespace cert-manager jetstack/cert-manager -f helm/cert-manager/values.yaml
-```
-
-### Install CA Cluster Issuer
-
-**NOTE**
-:exclamation: To be deprecated with argocd setup
-
-A setup script has been prepared which will generate and trust locally a key and CA certificate.
-
-```bash
-$> ./helm/cert-manager/setup_local_dev_ca.sh
-```
-
-This will be loaded into the k3d cluster as the keys to a self signed CA Cluster Issuer `ca-<CLUSTE_NAME>`. The cert, by default, will also be added to your linux system trust `/usr/local/share/ca-certificates/cert-manager-ca-<CLUSTER_NAME>.crt`.
-
-**NOTE**
-:exclamation: In future, for windows of Mac platforms this could be made cross platform.
-
-### Removing this cert
-
-Since you don't want CA's sticking around your computer's trust store, delete it when you are done with the environment.
+Since you don't want CA's sticking around your computer's trust store, it is deleted when you are done with the environment. If you notice it fails to delete the manual process is below.
 
 ```bash
 $> rm /usr/local/share/ca-certificates/cert-manager-ca-local.crt
@@ -99,27 +72,6 @@ $> sudo update-ca-trust
 ```
 
 The `-f` is fresh switch to remove symlinks in case anyting else was done with the cert file.
-
-## Setup OTel operator
-
-**NOTE**
-:exclamation: To be deprecated with argocd setup
-
-```bash
-$> helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-$> helm repo update
-$> helm upgrade -i -n otel-operator --create-namespace otel-operator open-telemetry/opentelemetry-operator -f helm/otelcollector/values.yaml
-```
-
-### Install a OTel Collector service
-
-**NOTE**
-:exclamation: To be deprecated with argocd setup
-
-```bash
-$> kubectl apply -f helm/otelcollector/collector.yaml
-$> kubectl apply -f helm/otelcollector/Instrumentation.yaml
-```
 
 ## Setup workload to produce traces
 

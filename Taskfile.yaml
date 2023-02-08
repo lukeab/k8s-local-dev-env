@@ -73,7 +73,7 @@ tasks:
   environment_urls:
     cmds:
       - |
-        figlet Logins:
+        MSG="Dev Env Links"; command -v figlet &>/dev/null && figlet "$MSG" || echo "****\n$MSG\n****\n"
         echo -n "Argocd:\t $(kubectl get ingress argocd-server -n argocd --output=jsonpath='{.spec.rules[0].host}')\tuser: admin\tpassword: "
         echo "$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)"
         echo "Prometheus:\t $(kubectl get ingress prometheus -n prometheus --output=jsonpath='{.spec.rules[0].host}')"

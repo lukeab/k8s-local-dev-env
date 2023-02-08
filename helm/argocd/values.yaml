@@ -4,13 +4,18 @@ configs:
 server:
   ingress:
     enabled: true
+    #https: false
     annotations:
-      kubernetes.io/ingress.class: traefik
-      ingress.kubernetes.io/ssl-redirect: "true"
-      cert-manager.io/cluster-issuer: "ca-local-dev"
+      #kubernetes.io/ingress.class: traefik
+      #ingress.kubernetes.io/ssl-redirect: "true"
+      #cert-manager.io/cluster-issuer: "ca-local-dev"
     hosts: 
-      - argocd.local-dev.local.gd
-    tls: 
-      - secretName: argocd-tls
-        hosts:
-          - argocd.local-dev.local.gd
+      - argocd.localdev.local.gd
+    # tls: 
+    #   - secretName: argocd-tls
+    #     hosts:
+    #       - argocd.localdev.local.gd
+  # metrics:
+  #   enabled: true
+  #   serviceMonitor:
+  #     enabled: true

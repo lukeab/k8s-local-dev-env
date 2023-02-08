@@ -57,9 +57,7 @@ tasks:
         B64_KEY="$(base64 -w 0 "data/ca.key")"
         B64_CRT="$(base64 -w 0 "data/ca.crt")"
         export B64_KEY B64_CRT
-        envsubst < "helm/cert-manager/secret-ca.yaml.tpl" > "data/secret-ca.yaml"
-        ## copy secret to argocd deployments directory
-        cp "data/secret-ca.yaml" argo-k3d-deployments/cert-manager-default-clusterissuer/
+        envsubst < "helm/cert-manager/secret-ca.yaml.tpl" > "argo-k3d-deployments/cert-manager-default-clusterissuer/secret-ca.yaml"
         if [ ! -f "${OS_CERT_PATH}" ]; then
           sudo cp "data/ca.crt" "${OS_CERT_PATH}"
           sudo {{.UPDATE_CA_TRUST_CMD}}

@@ -3,4 +3,4 @@ helm/cert-manager/ca.crt
 helm/cert-manager/ca.key
 helm/cert-manager/secret-ca.yaml
 data/**
-argocd-k3d-deployments/cert-manager/secret-ca.yaml
+argo-k3d-deployments/cert-manager-default-clusterissuer/secret-ca.yaml
