@@ -22,7 +22,14 @@ TODO: add description on how to reach the ca file to load manually into browsers
 
 ### Recommendations
 
-By installing the `libnss-myhostname` package, you can use *.localhost domains, on linux(`Ubuntu`), however golang tools like `argocd` do not default to the libc DNS resolution, so reliability of this is up for testing. This can be used to resolve any depth of subdomains prefixed in front of `.localhost` to `127.0.0.1` so you can reference services by hostnames in your local dev environment.
+#### libnss-myhostname
+
+By installing the `libnss-myhostname` package, you can use *.localhost domains, on linux(`Ubuntu`). This can be used to resolve any depth of subdomains prefixed in front of `.localhost` to `127.0.0.1` so you can reference services by hostnames in your local dev environment.
+
+**NOTE**
+:exclamation: however golang tools like `argocd` do not default to the libc DNS resolution, so reliability of this is up for testing
+
+#### k8slens.dev
 
 Another useful tool is the [k8slens.dev](https://k8slens.dev/) app which can be used to easily view your local dev environment kubernetes cluster and any other configured kubernetes clusters you may want to visually inspect or operate.
 
