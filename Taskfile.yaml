@@ -45,8 +45,9 @@ tasks:
       - task: Util:wait_for_deployments
         vars:
           NAMESPACE: kube-system
+      - task: argocd:setup_argocd
       - task: baseservices:create_all
-      - task: environment_urls
+      - task: show_environment_info
 
   teardown:
     desc: Destroy the k3d cluster and cleanup files.
@@ -68,7 +69,7 @@ tasks:
     cmds:
       - env
   
-  environment_urls:
+  show_environment_info:
     desc: Show all urls and appropriate logins required for the local dev environment
     cmds:
       - |

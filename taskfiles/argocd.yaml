@@ -6,7 +6,7 @@ tasks:
   setup_argo_helm_repo:
     cmds:
       - |
-        if ! [ helm repo list |grep -q argoproj.github.io/argo-helm ]; then
+        if ! helm repo list |grep -q argoproj.github.io/argo-helm ; then
           helm repo add argo https://argoproj.github.io/argo-helm
         fi
         #TODO: only do repo update if current copy of repo packages is too old
