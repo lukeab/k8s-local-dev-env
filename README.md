@@ -1,6 +1,6 @@
 # Local development k3d cluster with metrics tracing and logging and more
 
-This is a local kubernetes cluster setup using [k3d](https://k3d.io), [ArgoCD](https://argoproj.github.io/cd), [Prometheus](https://prometheus.io/), [Loki](https://grafana.com/oss/loki/), [Tempo](https://grafana.com/oss/tempo/) and [OpenTelemetry](https://opentelemetry.io/) for a very lightweight local development environment with full Observability (Logging, Metrics and Tracing). Additionally [cert-manager](https://cert-manager.io/) is deployed along with a CA which is setup to be trusted by your OS and Chrome by the bootstrap process, to smoothly offer fully working SSL(TLS) certificate secured pages for your local development enjoyment. 
+This is a local kubernetes cluster setup using [k3d](https://k3d.io), [ArgoCD](https://argoproj.github.io/cd), [Prometheus](https://prometheus.io/), [Loki](https://grafana.com/oss/loki/), [Tempo](https://grafana.com/oss/tempo/) and [OpenTelemetry](https://opentelemetry.io/) for a very lightweight local development environment with full Observability (Logging, Metrics and Tracing). Additionally [cert-manager](https://cert-manager.io/) is deployed along with a CA which is setup to be trusted by your OS and Chrome by the bootstrap process, to smoothly offer fully working SSL(TLS) certificate secured pages for your local development enjoyment.
 
 The idea is this can be used for developers to learn kubernetes principles, test service deployments without incurring costs in a cloud provider or having enough local resource to run it all on without using VM's or external hardware.
 
@@ -52,7 +52,7 @@ task bootstrap
 
 This will create a light weight (k3s based) kubernetes cluster in docker containers, including by default the [traefik](https://traefik.io/) proxy as a load balancer and a [docker registry](https://docs.docker.com/registry/) which can be accessed at `registry.<CLUSTER_NAME>.<LOCAL_DEV_DNS_SUFFIX>:5000` from within the cluster and from your workspace as `localhost:5000`, as well as the same dns address as within your cluster.
 
-#### example use of the registry
+### example use of the registry
 
 ```bash
 docker build ./fastapidemo/ -f ./fastapidemo/Dockerfile -t localhost:5000/fastapidemo:v0.1
@@ -61,7 +61,7 @@ docker push localhost:5000/fastapidemo:v0.1
 
 ## ArgoCD
 
-ArgoCD, along with the other base services(which are managed in ArgoCD) are installed by default with bootstrap. This can allow deploying components from a local directory using the `argocd` cli tool. 
+ArgoCD, along with the other base services(which are managed in ArgoCD) are installed by default with bootstrap. This can allow deploying components from a local directory using the `argocd` cli tool.
 
 TODO: Document example of deploying local project with argo or other options eg. Tekton, Tilt, Skaffold, gitlab local runner or other options.
 
@@ -78,13 +78,25 @@ $> kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.
 Since you don't want CA's sticking around your computer's trust store, it is deleted when you `task teardown` and are done with the environment. If you notice it fails to delete the manual process is below.
 
 ```bash
-$> rm {{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt
+$> rm <OS_CERT_PATH>/k8s-<CLUSTER_NAME>-cert-manager-ca.crt
 $> sudo update-ca-certificates -f 
 ## or if on arch or fedora
 $> sudo update-ca-trust
 ```
 
-The OS_CERT_PATH depends on the distribution of linux. For Mac and Windows cert management proceedures, and a general guide in linux versions, refer to https://manuals.gfi.com/en/kerio/connect/content/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html
+The OS_CERT_PATH depends on the distribution of linux. For Mac and Windows cert management proceedures, and a general guide in linux versions, refer to [manuals.gfi.com adding-trust-root-certificates](https://manuals.gfi.com/en/kerio/connect/content/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html)
+
+Google Chrome uses `certutil` from `libnss3-tools` package to manage the certificiate trust database. You can check what certificates are registered by running
+
+```bash
+$> certutil -L -d sql:$HOME/.pki/nssdb
+```
+
+If you see the local development CA in the list, you can manually remove it with:
+
+```bash
+$> 
+```
 
 ## Setup workload to produce traces
 
