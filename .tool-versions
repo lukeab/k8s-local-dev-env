@@ -1,0 +1,7 @@
+task            3.20.0
+k3d             5.4.6
+kubectl         1.25.2
+argocd          2.5.8
+cfssl           1.6.3 
+cmctl           1.10.1
+helm            3.10.3
