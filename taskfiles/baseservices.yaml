@@ -5,8 +5,8 @@ version: '3'
 tasks:
   create_all:
     cmds:
-      - task: create_app_cert_manager
       - task: create_app_prometheus_stack
+      - task: create_app_cert_manager
       - task: create_app_loki_stack
       - task: create_app_tempo
       - task: create_app_opentelemetry_operator
