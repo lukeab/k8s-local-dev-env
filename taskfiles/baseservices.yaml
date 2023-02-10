@@ -12,6 +12,21 @@ tasks:
       - task: create_app_opentelemetry_operator
     silent: true
 
+  create_app_prometheus_stack:
+    cmds:
+      - |
+        argocd app create --upsert kube-prometheus-stack -f argocd/base-services/prometheus-stack/prometheus-stack.yaml \
+        --helm-set alertmanager.ingress.hosts[0]=alertmanager.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
+        --helm-set alertmanager.ingress.tls[0].hosts[0]=alertmanager.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
+        --helm-set grafana.ingress.hosts[0]=grafana.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
+        --helm-set grafana.ingress.tls[0].hosts[0]=grafana.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
+        --helm-set prometheus.ingress.hosts[0]=prometheus.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
+        --helm-set prometheus.ingress.tls[0].hosts[0]=prometheus.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}
+      - argocd app wait kube-prometheus-stack --sync
+      - task: :Util:wait_for_deployments
+        vars:
+          NAMESPACE: prometheus
+
   create_app_cert_manager: 
     cmds: 
       - argocd app create --upsert cert-manager -f argocd/base-services/cert-manager/cert-manager-app.yaml
@@ -21,15 +36,6 @@ tasks:
           NAMESPACE: cert-manager
       - argocd app create --upsert cert-manager-default-clusterissuer -f argocd/base-services/cert-manager/default-clusterissuer-app.yaml --validate=false --sync-policy none 
       - argocd app sync cert-manager-default-clusterissuer --local argo-k3d-deployments/cert-manager-default-clusterissuer --local-repo-root argo-k3d-deployments
-    
-
-  create_app_prometheus_stack:
-    cmds:
-      - argocd app create --upsert kube-prometheus-stack -f argocd/base-services/prometheus-stack/prometheus-stack.yaml
-      - argocd app wait kube-prometheus-stack --sync
-      - task: :Util:wait_for_deployments
-        vars:
-          NAMESPACE: prometheus
 
   create_app_loki_stack:
     cmds:
