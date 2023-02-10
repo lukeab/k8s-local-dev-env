@@ -20,19 +20,19 @@ Install the non asdf dependencies in your OS before beginning, `docker` `openssl
 
 In Ubuntu, the `libnss3-tools` package delivers the `certutil` command, allowing you to register certificates for trust by the Chrome browser. (Firefox: unknown, Mac: should be possible, Windows..emm.) Otherwise the cert can be manually added ot your browser trust through the browser security preferences.
 
-TODO: add description on how to reach the ca file to load manually into browsers if needed.
+:TODO: add description on how to reach the ca file to load manually into browsers if needed.
 
-### Recommendations
+## Recommendations
 
-#### k8slens.dev
+### k8slens.dev
 
 Another useful tool is the [k8slens.dev](https://k8slens.dev/) app which can be used to easily view your local dev environment kubernetes cluster and any other configured kubernetes clusters you may want to visually inspect or operate.
 
-#### kubectx/kubens
+### kubectx/kubens
 
 Command line tools `kubectx` and `kubens` are plugins for easily switching kubernetes cluster and current active namespaces in your `~/.kube/config` file. Generally just a good idea. It is included in the `asdf` [`.tool-versions`](./.tool-versions) file, but otherwise see the github page [ahmetb/kubectx](https://github.com/ahmetb/kubectx#installation) for approaches to install it.
 
-#### libnss-myhostname
+### libnss-myhostname
 
 By installing the `libnss-myhostname` package, you can use *.localhost domains, on linux(`Ubuntu`). This can be used to resolve any depth of subdomains prefixed in front of `.localhost` to `127.0.0.1` so you can reference services by hostnames in your local dev environment.
 
@@ -63,11 +63,11 @@ docker push localhost:5000/fastapidemo:v0.1
 
 ArgoCD, along with the other base services(which are managed in ArgoCD) are installed by default with bootstrap. This can allow deploying components from a local directory using the `argocd` cli tool.
 
-TODO: Document example of deploying local project with argo or other options eg. Tekton, Tilt, Skaffold, gitlab local runner or other options.
+:TODO: Document example of deploying local project with argo or other options eg. Tekton, Tilt, Skaffold, gitlab local runner or other options.
 
-During bootstrap, the argocd cli will automatically login, so argocd commands can be run on the conole. But to use the web ui, got to `https://argocd.<CLUSTER_NAME>.<LOCAL_DEV_DNS_SUFFIX>`.
+During bootstrap, the argocd cli will automatically login, so argocd commands can be run on the console. But to use the web ui, got to `https://argocd.<CLUSTER_NAME>.<LOCAL_DEV_DNS_SUFFIX>`.
 
-Ther username is defaulted to admin, and retreive the password with:
+The username is defaulted to admin, and retrieve the password with:
 
 ```bash
 $> kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
@@ -84,9 +84,9 @@ $> sudo update-ca-certificates -f
 $> sudo update-ca-trust
 ```
 
-The OS_CERT_PATH depends on the distribution of linux. For Mac and Windows cert management proceedures, and a general guide in linux versions, refer to [manuals.gfi.com adding-trust-root-certificates](https://manuals.gfi.com/en/kerio/connect/content/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html)
+The OS_CERT_PATH depends on the distribution of linux. For Mac and Windows cert management procedures, and a general guide in linux versions, refer to [manuals.gfi.com adding-trust-root-certificates](https://manuals.gfi.com/en/kerio/connect/content/server-configuration/ssl-certificates/adding-trusted-root-certificates-to-the-server-1605.html)
 
-Google Chrome uses `certutil` from `libnss3-tools` package to manage the certificiate trust database. You can check what certificates are registered by running
+Google Chrome uses `certutil` from `libnss3-tools` package to manage the certificate trust database. You can check what certificates are registered by running
 
 ```bash
 $> certutil -L -d sql:$HOME/.pki/nssdb
@@ -95,7 +95,7 @@ $> certutil -L -d sql:$HOME/.pki/nssdb
 If you see the local development CA in the list, you can manually remove it with:
 
 ```bash
-$> 
+$> certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-<CLUSTER_NAME>-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-<CLUSTER_NAME>-ca
 ```
 
 ## Setup workload to produce traces

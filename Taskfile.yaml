@@ -61,7 +61,7 @@ tasks:
       - "[ -f {{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt ] && sudo rm -v {{.OS_CERT_PATH}}/k8s-{{.CLUSTER_NAME}}-cert-manager-ca.crt && sudo {{.UPDATE_CA_TRUST_CMD}} || true"
       # list certs with - certutil -L -d sql:$HOME/.pki/nssdb
       # get if the cert exists and delete it if it does
-      - certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-local-dev-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-local-dev-ca || true
+      - certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-{{.CLUSTER_NAME}}-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-{{.CLUSTER_NAME}}-ca || true
       - "[ -f argo-k3d-deployments/cert-manager-default-clusterissuer/secret-ca.yaml ] && rm -v argo-k3d-deployments/cert-manager-default-clusterissuer/secret-ca.yaml || true"
       - cd data && GLOBIGNORE=.gitkeep rm -v * || true
 
