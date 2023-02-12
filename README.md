@@ -95,7 +95,7 @@ $> certutil -L -d sql:$HOME/.pki/nssdb
 If you see the local development CA in the list, you can manually remove it with:
 
 ```bash
-$> certutil -d sql:$HOME/.pki/nssdb -L -n cert-manager-<CLUSTER_NAME>-ca && certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-<CLUSTER_NAME>-ca
+$>certutil -d sql:$HOME/.pki/nssdb -D -n cert-manager-<CLUSTER_NAME>-ca
 ```
 
 ## Setup workload to produce traces
