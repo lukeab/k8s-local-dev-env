@@ -69,6 +69,21 @@ tasks:
     cmds:
       - env
   
+  test_create_app:
+    cmds: 
+      - |
+        cd fastapi-demo 
+        docker build -t registry.localhost:5000/fastapidemo:v0.1.2 .
+        docker push registry.localhost:5000/fastapidemo:v0.1.2
+      - task: argocd:create_app
+        vars:
+          ARGO_PROJECT: "default"
+          ARGO_APP_NAME: "fastapidemo"
+      - task: argocd:sync_app_from_folder
+        vars:
+          ARGO_APP_NAME: "fastapidemo"
+          APP_LOCAL_FOLDER: "argocd/testapp"
+
   show_environment_info:
     desc: Show all urls and appropriate logins required for the local dev environment
     cmds:

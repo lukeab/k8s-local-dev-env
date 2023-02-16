@@ -53,8 +53,34 @@ tasks:
       - task: create_projects
     silent: true 
 
+  create_app:
+    vars: 
+      ARGO_PROJECT: '{{ default "default" .ARGO_PROJECT }}'
+      ARGO_APP_NAME: '{{ default "testapp" .ARGO_APP_NAME }}'
+      ARGO_APP_NAMESPACE: '{{ default "default" .ARGO_APP_NAMESPACE }}'
+      ARGO_REPO_URL: '{{ default "https://github.com/lukeab/fakerepo.git" .ARGO_REPO_URL }}'
+    cmds:
+      - echo -e 'Creating APP "{{.ARGO_APP_NAME}}"  in Project "{{.ARGO_PROJECT}}" in Namespace "{{.ARGO_APP_NAMESPACE}}"\n'
+      - |
+        argocd app create --upsert {{.ARGO_APP_NAME}} \
+        --validate=false --sync-policy=none --set-finalizer \
+        --path /{{.ARGO_APP_NAME}} \
+        --repo {{.ARGO_REPO_URL}} \
+        --project {{.ARGO_PROJECT}} \
+        --dest-namespace {{.ARGO_APP_NAMESPACE}} \
+        --dest-server https://kubernetes.default.svc
+  
+  sync_app_from_folder:
+    vars:
+      ARGO_APP_NAME: '{{ default "testapp" .ARGO_APP_NAME }}'
+      APP_LOCAL_FOLDER: '{{ default "argocd/testapp" .APP_LOCAL_FOLDER }}'
+    cmds:
+      - echo "Syncing app {{.ARGO_APP_NAME}} from folder {{.APP_LOCAL_FOLDER}}"
+      - argocd app sync {{.ARGO_APP_NAME}} --local {{.APP_LOCAL_FOLDER}}
+
   create_projects: 
     cmds: 
       - argocd proj create --upsert -f argocd/base-services-project.yaml
       #- argocd app create -f argocd/serviceapps.yaml --validate false
       #- argocd app create testapp2 --repo https://github.com/lukeab/unvalidated.git --path testapp2 --dest-server https://kubernetes.default.svc --dest-namespace testapp2 --validate=false --sync-policy none --set-finalizer --sync-option CreateNamespace=true
+ 

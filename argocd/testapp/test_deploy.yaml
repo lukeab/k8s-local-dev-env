@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: fastapi-demo
-        image: registry.localhost:5000/fastapidemo:v0.1
+        image: registry.localdev.local.gd:5000/fastapidemo:v0.1.2
 ---
 apiVersion: v1
 kind: Service
@@ -44,10 +44,11 @@ metadata:
 spec:
   tls:
     - hosts:
-        - fastapidemo.${CLUSTER_NAME}.${LOCAL_DEV_DNS_SUFFIX}
+        #- fastapidemo.${CLUSTER_NAME}.${LOCAL_DEV_DNS_SUFFIX}
+        - fastapidemo.localdev.local.gd
       secretName: fastapidemo-tls
   rules:
-  - host: fastapidemo.${CLUSTER_NAME}.${LOCAL_DEV_DNS_SUFFIX}
+  - host: fastapidemo.localdev.local.gd
     http:
       paths:
       - path: /

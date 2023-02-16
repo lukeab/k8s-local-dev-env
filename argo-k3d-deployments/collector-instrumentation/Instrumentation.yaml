@@ -19,3 +19,5 @@ spec:
       # so data must be sent to 4318 instead of 4137.
       - name: OTEL_EXPORTER_OTLP_ENDPOINT
         value: http://my-collector-collector.otel-operator.svc.cluster.local:4318
+      - name: OTEL_PYTHON_LOG_CORRELATION
+        value: 'true'
