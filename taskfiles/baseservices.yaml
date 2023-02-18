@@ -16,12 +16,12 @@ tasks:
     cmds:
       - |
         argocd app create --upsert kube-prometheus-stack -f argocd/base-services/prometheus-stack/prometheus-stack.yaml \
-        --helm-set alertmanager.ingress.hosts[0]=alertmanager.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
-        --helm-set alertmanager.ingress.tls[0].hosts[0]=alertmanager.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
-        --helm-set grafana.ingress.hosts[0]=grafana.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
-        --helm-set grafana.ingress.tls[0].hosts[0]=grafana.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
-        --helm-set prometheus.ingress.hosts[0]=prometheus.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}} \
-        --helm-set prometheus.ingress.tls[0].hosts[0]=prometheus.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}
+        --helm-set "alertmanager.ingress.hosts[0]=alertmanager.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}" \
+        --helm-set "alertmanager.ingress.tls[0].hosts[0]=alertmanager.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}" \
+        --helm-set "grafana.ingress.hosts[0]=grafana.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}" \
+        --helm-set "grafana.ingress.tls[0].hosts[0]=grafana.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}" \
+        --helm-set "prometheus.ingress.hosts[0]=prometheus.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}" \
+        --helm-set "prometheus.ingress.tls[0].hosts[0]=prometheus.{{.CLUSTER_NAME}}.{{.LOCAL_DEV_DNS_SUFFIX}}"
       - argocd app wait kube-prometheus-stack --sync
       - task: :Util:wait_for_deployments
         vars:
